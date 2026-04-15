@@ -64,42 +64,8 @@
     </div>
 </header>
 
-    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- 左側服務導航 -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
-                    <div class="text-center mb-6">
-                        <img src="https://i.postimg.cc/25B6J6q0/Pegasus-Icon.jpg" alt="智能客服機器人" class="w-24 h-24 mx-auto rounded-full object-cover mb-3">
-                        <h3 class="font-semibold text-dark">Pegasus</h3>
-                        <p class="text-xs text-gray-500 mt-1">7×24小時線上服務</p>
-                    </div>
-                    
-                    <div class="border-t border-gray-100 pt-4">
-                        <h4 class="text-sm font-medium text-gray-700 mb-3">常用服務</h4>
-                        <ul class="space-y-2">
-                            <li><button onclick="quickQuestion('帳戶管理')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-credit-card text-primary mr-3 w-4 text-center"></i>帳戶管理</button></li>
-                            <li><button onclick="quickQuestion('融資貸款')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-line-chart text-primary mr-3 w-4 text-center"></i>融資貸款</button></li>
-                            <li><button onclick="quickQuestion('支付結算')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-exchange text-primary mr-3 w-4 text-center"></i>支付結算</button></li>
-                            <li><button onclick="quickQuestion('稅務發票')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-file-text-o text-primary mr-3 w-4 text-center"></i>稅務發票</button></li>
-                            <li><button onclick="quickQuestion('政策諮詢')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-info-circle text-primary mr-3 w-4 text-center"></i>政策諮詢</button></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="border-t border-gray-100 pt-4 mt-4">
-                        <h4 class="text-sm font-medium text-gray-700 mb-3">熱門問題</h4>
-                        <ul class="space-y-2">
-                            <li><button onclick="quickQuestion('經營貸申請條件')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">經營貸申請條件</button></li>
-                            <li><button onclick="quickQuestion('對公轉賬多久到賬')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">對公轉賬多久到賬</button></li>
-                            <li><button onclick="quickQuestion('電子發票怎麼開')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">電子發票怎麼開</button></li>
-                            <li><button onclick="quickQuestion('普惠貼息政策')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">普惠貼息政策</button></li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 右側聊天窗口 -->
-            <div class="lg:col-span-3">
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)]">
                 <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)]">
                     <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                         <div class="flex items-center">
@@ -152,97 +118,97 @@
         </div>
     </main>
 
+<script src="data/engine.js"></script>
 <script>
-    function logout() {
-        localStorage.removeItem('hsbcLogin');
-        window.location.href = 'index.html';
-    }
-
     const chatMessages = document.getElementById('chatMessages');
     const messageInput = document.getElementById('messageInput');
 
-        const replies = {
-            '帳戶管理': '關於帳戶管理，我可以為您提供以下服務：\n1. 帳戶餘額查詢\n2. 交易明細查詢\n3. 帳戶狀態查詢\n4. 掛失/解掛服務\n請問您具體需要了解哪一項？',
-            '融資貸款': '我行針對中小企提供多種融資產品：\n1. 小微經營貸：最高500萬，年化低至3.85%，最快1天放款\n2. 科技信用貸：針對科技型企業，純信用，最高300萬\n3. 供應鏈融資：依託核心企業信用，為上下游企業提供融資\n您可以告訴我您的企業類型，我為您推薦最合適的產品。',
-            '支付結算': '支付結算相關服務包括：\n1. 對公轉賬：支援實時到賬、普通到賬、次日到賬\n2. 代發工資：一鍵批量發放，手續費優惠\n3. 票據服務：匯票、本票、支票相關服務\n4. 跨境結算：支援多幣種跨境支付\n請問您有什麼具體問題？',
-            '稅務發票': '稅務發票相關服務：\n1. 電子發票開具：支援企業端自助開具電子發票\n2. 發票查驗：提供發票真偽查驗服務\n3. 稅務籌劃諮詢：專業團隊為您提供稅務優化建議\n4. 銀稅互動：依託納稅信用提供融資服務',
-            '政策諮詢': '最新的中小企普惠金融政策：\n1. 普惠小微貸款支持工具：對符合條件的貸款給予貼息支持\n2. 減稅降費政策：小規模納稅人增值稅減免政策\n3. 穩崗返還政策：失業保險穩崗返還申請指引\n4. 創業擔保貸款：針對初創企業的專項貸款政策',
-            '查詢帳戶餘額': '您當前對公帳戶餘額為：<strong>¥1,258,642.38</strong>\n\n其中：\n- 基本戶：¥892,456.72\n- 一般戶：¥366,185.66\n您可以通過企業網銀查看更詳細的交易明細。',
-            '經營貸申請條件': '小微經營貸申請條件：\n1. 企業成立滿1年以上，徵信良好\n2. 企業主年齡22-65週歲，無不良信用記錄\n3. 近6個月企業對公帳戶月均流水不低於5萬元\n4. 提供營業執照、經營場所證明等基礎材料\n\n申請流程：線上提交申請 → 系統審批 → 簽約放款，最快1天即可完成。',
-            '對公轉賬流程': '對公轉賬流程指引：\n1. 登錄企業網銀，進入"轉賬匯款"模組\n2. 填寫收款方帳戶資訊、轉賬金額\n3. 選擇到賬方式：實時到賬（5萬以下實時，5萬以上工作日9-17點實時）、普通到賬（2小時內）、次日到賬\n4. 驗證U盾或短信驗證碼完成提交\n\n大額轉賬需要提前預約哦。',
-            '發票開具指引': '電子發票開具指引：\n1. 登錄企業網銀，進入"發票服務"模組\n2. 選擇"開具電子發票"，填寫購買方資訊\n3. 選擇開票項目、金額，確認無誤後提交\n4. 系統自動生成電子發票，發送到您的郵箱\n\n您也可以通過我們的企業微信小程序完成開票操作。',
-            '對公轉賬多久到賬': '對公轉賬到賬時間：\n- 同行轉賬：實時到賬，7×24小時支援\n- 跨行轉賬：\n  • 5萬元以下：7×24小時實時到賬\n  • 5萬元以上：工作日9:00-17:00實時到賬，非工作時間順延至下一工作日\n您可以根據您的需求選擇合適的轉賬方式。',
-            '電子發票怎麼開': '電子發票開具步驟：\n1. 訪問我行企業網銀，登錄您的企業帳戶\n2. 找到"金融服務"下的"電子發票"入口\n3. 填寫購買方的名稱、稅號等資訊\n4. 選擇需要開票的交易記錄，確認開票金額\n5. 提交後，電子發票會自動發送到您預留的郵箱，您可以下載列印。',
-            '普惠貼息政策': '最新普惠貸款貼息政策：\n針對小微企業的普惠貸款，我行提供貼息支持：\n1. 貼息比例：對符合條件的貸款，給予年化1%的利息補貼\n2. 申請條件：企業屬於小微企業名錄，貸款用於生產經營\n3. 申請方式：貸款審批通過後，自動享受貼息政策，無需額外申請\n4. 政策有效期：2026年12月31日前',
-            '默認': '感謝您的提問，我已收到您的問題："{question}"\n\n我正在為您查詢相關資訊，稍後會為您提供詳細解答。如果您的問題比較緊急，也可以點擊右上角的電話圖標，直接聯繫我們的人工客服。'
-        };
+    function logout() {
+        localStorage.removeItem('hsbcLogin');
+        window.location.href = 'home.html';
+    }
 
-        function addMessage(content, isUser = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex items-start message-fade-in ${isUser ? 'flex-row-reverse' : ''}`;
-            let avatar, bgColor;
-            if (isUser) {
-                avatar = `<div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center ml-3 flex-shrink-0"><i class="fa fa-user text-white text-sm"></i></div>`;
-                bgColor = 'bg-primary text-white rounded-lg rounded-tr-none';
-            } else {
-                avatar = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div>`;
-                bgColor = 'bg-neutral rounded-lg rounded-tl-none';
-            }
-            const formattedContent = content.replace(/\n/g, '<br>');
-            messageDiv.innerHTML = `${avatar}<div class="${bgColor} px-4 py-3 max-w-[80%]"><p class="${isUser ? 'text-white' : 'text-gray-800'}">${formattedContent}</p></div>`;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+    function addMessage(content, isUser = false) {
+        const messageDiv = document.createElement('div');
+        messageDiv.className = `flex items-start message-fade-in ${isUser ? 'flex-row-reverse' : ''}`;
+        let avatar, bgColor;
+        if (isUser) {
+            avatar = `<div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center ml-3 flex-shrink-0"><i class="fa fa-user text-white text-sm"></i></div>`;
+            bgColor = 'bg-primary text-white rounded-lg rounded-tr-none';
+        } else {
+            avatar = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div>`;
+            bgColor = 'bg-neutral rounded-lg rounded-tl-none';
         }
+        const formattedContent = content.replace(/\n/g, '<br>');
+        messageDiv.innerHTML = `${avatar}<div class="${bgColor} px-4 py-3 max-w-[80%]"><p class="${isUser ? 'text-white' : 'text-gray-800'}">${formattedContent}</p></div>`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
-        function addTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typingIndicator';
-            typingDiv.className = 'flex items-start message-fade-in';
-            typingDiv.innerHTML = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div><div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3"><div class="typing-indicator flex space-x-1"><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span></div></div>`;
-            chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+    function addTypingIndicator() {
+        const typingDiv = document.createElement('div');
+        typingDiv.id = 'typingIndicator';
+        typingDiv.className = 'flex items-start message-fade-in';
+        typingDiv.innerHTML = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div><div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3"><div class="typing-indicator flex space-x-1"><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span></div></div>`;
+        chatMessages.appendChild(typingDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
 
-        function removeTypingIndicator() {
-            const typingIndicator = document.getElementById('typingIndicator');
-            if (typingIndicator) typingIndicator.remove();
-        }
+    function removeTypingIndicator() {
+        const typingIndicator = document.getElementById('typingIndicator');
+        if (typingIndicator) typingIndicator.remove();
+    }
 
     function quickQuestion(question) {
         addMessage(question, true);
-        setTimeout(() => addMessage(replies[question] || replies['默認']), 500);
+        setTimeout(() => displayCurrentNode(), 500);
     }
 
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-            addMessage(message, true);
-            messageInput.value = '';
-            setTimeout(() => { addTypingIndicator(); setTimeout(() => { removeTypingIndicator();
-                let reply = replies[message];
-                if (!reply) {
-                    if (message.includes('餘額') || message.includes('帳戶')) reply = replies['查詢帳戶餘額'];
-                    else if (message.includes('貸款') || message.includes('經營貸') || message.includes('融資')) reply = replies['經營貸申請條件'];
-                    else if (message.includes('轉賬') || message.includes('支付')) reply = replies['對公轉賬流程'];
-                    else if (message.includes('發票') || message.includes('稅務')) reply = replies['發票開具指引'];
-                    else if (message.includes('政策') || message.includes('貼息')) reply = replies['普惠貼息政策'];
-                    else reply = replies['默認'].replace('{question}', message);
-                }
-                addMessage(reply);
-            }, 1000); }, 300);
-        }
+    function sendMessage() {
+        const message = messageInput.value.trim();
+        if (!message) return;
+        
+        addMessage(message, true);
+        messageInput.value = '';
+        
+        setTimeout(() => {
+            displayCurrentNode();
+        }, 300);
+    }
 
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') sendMessage();
-        }
+    function handleKeyPress(event) {
+        if (event.key === 'Enter') sendMessage();
+    }
 
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                addMessage(`已上傳文件：${file.name}`, true);
-                // 這裡可以添加將文件保存到 documents 目錄的邏輯，但需後端支援
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file) {
+            addMessage(`已上傳文件：${file.name}`, true);
+        }
+    }
+
+    // 初始化
+    async function init() {
+        const success = await initializeEngine();
+        if (success) {
+            // 檢查 URL 參數
+            const urlParams = new URLSearchParams(window.location.search);
+            const question = urlParams.get('question');
+            if (question) {
+                setTimeout(() => {
+                    addMessage(question, true);
+                    displayCurrentNode();
+                }, 500);
+            } else {
+                displayCurrentNode();
             }
+        } else {
+            addMessage('Error: Failed to load conversation engine');
         }
-    </script>
+    }
+
+    // 頁面加載時初始化
+    window.addEventListener('load', init);
+</script>
 </body>
 </html>

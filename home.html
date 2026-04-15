@@ -79,184 +79,79 @@
 </header>
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <!-- 左側服務導航 -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-xl shadow-sm p-6 sticky top-24">
-                    <div class="text-center mb-6">
-                        <img src="https://i.postimg.cc/25B6J6q0/Pegasus-Icon.jpg" alt="智能客服機器人" class="w-24 h-24 mx-auto rounded-full object-cover mb-3">
-                        <h3 class="font-semibold text-dark">Pegasus</h3>
-                        <p class="text-xs text-gray-500 mt-1">7×24小時線上服務</p>
-                    </div>
-                    
-                    <div class="border-t border-gray-100 pt-4">
-                        <h4 class="text-sm font-medium text-gray-700 mb-3">常用服務</h4>
-                        <ul class="space-y-2">
-                            <li><button onclick="quickQuestion('帳戶管理')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-credit-card text-primary mr-3 w-4 text-center"></i>帳戶管理</button></li>
-                            <li><button onclick="quickQuestion('融資貸款')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-line-chart text-primary mr-3 w-4 text-center"></i>融資貸款</button></li>
-                            <li><button onclick="quickQuestion('支付結算')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-exchange text-primary mr-3 w-4 text-center"></i>支付結算</button></li>
-                            <li><button onclick="quickQuestion('稅務發票')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-file-text-o text-primary mr-3 w-4 text-center"></i>稅務發票</button></li>
-                            <li><button onclick="quickQuestion('政策諮詢')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-700 flex items-center"><i class="fa fa-info-circle text-primary mr-3 w-4 text-center"></i>政策諮詢</button></li>
-                        </ul>
-                    </div>
-                    
-                    <div class="border-t border-gray-100 pt-4 mt-4">
-                        <h4 class="text-sm font-medium text-gray-700 mb-3">熱門問題</h4>
-                        <ul class="space-y-2">
-                            <li><button onclick="quickQuestion('經營貸申請條件')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">經營貸申請條件</button></li>
-                            <li><button onclick="quickQuestion('對公轉賬多久到賬')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">對公轉賬多久到賬</button></li>
-                            <li><button onclick="quickQuestion('電子發票怎麼開')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">電子發票怎麼開</button></li>
-                            <li><button onclick="quickQuestion('普惠貼息政策')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600 truncate">普惠貼息政策</button></li>
-                        </ul>
-                    </div>
-                </div>
+        <!-- 上方歡迎 -->
+        <div class="bg-primary text-white text-center py-8 rounded-xl mb-8">
+            <h1 class="text-3xl font-bold mb-2">您好！歡迎使用 Pegasus</h1>
+            <p class="text-lg">請選擇您想了解的服務：</p>
+        </div>
+
+        <!-- 選擇選項 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+                <h3 class="text-xl font-semibold mb-4">直接輸入問題</h3>
+                <p class="text-gray-600 mb-4">立即詢問您的問題</p>
+                <button onclick="window.location.href='app.html'" class="bg-primary text-white px-6 py-3 rounded-lg">開始對話</button>
             </div>
-
-            <!-- 右側聊天窗口 -->
-            <div class="lg:col-span-3">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)]">
-                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                                <i class="fa fa-robot text-primary"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-dark">Pegasus</h3>
-                                <p class="text-xs text-green-500">線上，隨時為您服務</p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-3">
-                            <button class="text-gray-400 hover:text-gray-600"><i class="fa fa-phone"></i></button>
-                            <button class="text-gray-400 hover:text-gray-600"><i class="fa fa-ellipsis-v"></i></button>
-                        </div>
-                    </div>
-
-                    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4 chat-scrollbar">
-                        <div class="flex items-start message-fade-in">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0">
-                                <i class="fa fa-robot text-primary text-sm"></i>
-                            </div>
-                            <div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3 max-w-[80%]">
-                                <p class="text-gray-800">您好！歡迎使用 Pegasus 😊</p>
-                                <p class="text-gray-800 mt-2">我可以為您提供帳戶查詢、貸款諮詢、支付結算、稅務發票等全方位的企業金融服務，請問有什麼可以幫您？</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-6 py-3 border-t border-gray-100">
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="quickQuestion('查詢帳戶餘額')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">查詢帳戶餘額</button>
-                            <button onclick="quickQuestion('經營貸申請條件')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">經營貸申請條件</button>
-                            <button onclick="quickQuestion('對公轉賬流程')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">對公轉賬流程</button>
-                            <button onclick="quickQuestion('發票開具指引')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">發票開具指引</button>
-                        </div>
-                    </div>
-
-                    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
-                        <div class="flex items-center space-x-3">
-                            <input type="file" id="fileInput" style="display:none;" onchange="handleFileUpload(event)">
-                            <button onclick="document.getElementById('fileInput').click()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-paperclip"></i></button>
-                            <input type="text" id="messageInput" placeholder="請輸入您的問題..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" onkeypress="handleKeyPress(event)">
-                            <button onclick="sendMessage()" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90"><i class="fa fa-paper-plane"></i></button>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2 text-center">溫馨提示：我行不會通過聊天工具索要您的密碼、驗證碼，請妥善保管個人資訊。</p>
-                    </div>
-                </div>
+            <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+                <h3 class="text-xl font-semibold mb-4">登入以使用全部功能</h3>
+                <p class="text-gray-600 mb-4">登入後享受完整服務</p>
+                <button onclick="window.location.href='login.html'" class="bg-primary text-white px-6 py-3 rounded-lg">登入</button>
             </div>
+        </div>
+
+        <!-- 四個問題方格 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="text-center mb-4">
+                    <i class="fa fa-credit-card text-primary text-3xl mb-2"></i>
+                    <h4 class="font-semibold">帳戶管理</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">查詢餘額、交易記錄等</p>
+                <button onclick="quickQuestion('帳戶管理')" class="w-full bg-primary/10 text-primary py-2 rounded-lg">了解更多</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="text-center mb-4">
+                    <i class="fa fa-line-chart text-primary text-3xl mb-2"></i>
+                    <h4 class="font-semibold">融資貸款</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">經營貸、信用貸等諮詢</p>
+                <button onclick="quickQuestion('融資貸款')" class="w-full bg-primary/10 text-primary py-2 rounded-lg">了解更多</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="text-center mb-4">
+                    <i class="fa fa-exchange text-primary text-3xl mb-2"></i>
+                    <h4 class="font-semibold">支付結算</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">轉賬、結算服務</p>
+                <button onclick="quickQuestion('支付結算')" class="w-full bg-primary/10 text-primary py-2 rounded-lg">了解更多</button>
+            </div>
+            <div class="bg-white rounded-xl shadow-sm p-6">
+                <div class="text-center mb-4">
+                    <i class="fa fa-file-text-o text-primary text-3xl mb-2"></i>
+                    <h4 class="font-semibold">稅務發票</h4>
+                </div>
+                <p class="text-gray-600 text-sm mb-4">發票開具、稅務諮詢</p>
+                <button onclick="quickQuestion('稅務發票')" class="w-full bg-primary/10 text-primary py-2 rounded-lg">了解更多</button>
+            </div>
+        </div>
+
+        <!-- 常有問題 -->
+        <div class="bg-white rounded-xl shadow-sm p-6">
+            <h3 class="text-xl font-semibold mb-4">常有問題</h3>
+            <ul class="space-y-2">
+                <li><button onclick="quickQuestion('經營貸申請條件')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">經營貸申請條件</button></li>
+                <li><button onclick="quickQuestion('對公轉賬多久到賬')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">對公轉賬多久到賬</button></li>
+                <li><button onclick="quickQuestion('電子發票怎麼開')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">電子發票怎麼開</button></li>
+                <li><button onclick="quickQuestion('普惠貼息政策')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">普惠貼息政策</button></li>
+            </ul>
         </div>
     </main>
 
 <script>
-    function logout() {
-        localStorage.removeItem('hsbcLogin');
-        window.location.reload();
-    }
-
-    const chatMessages = document.getElementById('chatMessages');
-    const messageInput = document.getElementById('messageInput');
-
-        const replies = {
-            '帳戶管理': '關於帳戶管理，我可以為您提供以下服務：\n1. 帳戶餘額查詢\n2. 交易明細查詢\n3. 帳戶狀態查詢\n4. 掛失/解掛服務\n請問您具體需要了解哪一項？',
-            '融資貸款': '我行針對中小企提供多種融資產品：\n1. 小微經營貸：最高500萬，年化低至3.85%，最快1天放款\n2. 科技信用貸：針對科技型企業，純信用，最高300萬\n3. 供應鏈融資：依託核心企業信用，為上下游企業提供融資\n您可以告訴我您的企業類型，我為您推薦最合適的產品。',
-            '支付結算': '支付結算相關服務包括：\n1. 對公轉賬：支援實時到賬、普通到賬、次日到賬\n2. 代發工資：一鍵批量發放，手續費優惠\n3. 票據服務：匯票、本票、支票相關服務\n4. 跨境結算：支援多幣種跨境支付\n請問您有什麼具體問題？',
-            '稅務發票': '稅務發票相關服務：\n1. 電子發票開具：支援企業端自助開具電子發票\n2. 發票查驗：提供發票真偽查驗服務\n3. 稅務籌劃諮詢：專業團隊為您提供稅務優化建議\n4. 銀稅互動：依託納稅信用提供融資服務',
-            '政策諮詢': '最新的中小企普惠金融政策：\n1. 普惠小微貸款支持工具：對符合條件的貸款給予貼息支持\n2. 減稅降費政策：小規模納稅人增值稅減免政策\n3. 穩崗返還政策：失業保險穩崗返還申請指引\n4. 創業擔保貸款：針對初創企業的專項貸款政策',
-            '查詢帳戶餘額': '您當前對公帳戶餘額為：<strong>¥1,258,642.38</strong>\n\n其中：\n- 基本戶：¥892,456.72\n- 一般戶：¥366,185.66\n您可以通過企業網銀查看更詳細的交易明細。',
-            '經營貸申請條件': '小微經營貸申請條件：\n1. 企業成立滿1年以上，徵信良好\n2. 企業主年齡22-65週歲，無不良信用記錄\n3. 近6個月企業對公帳戶月均流水不低於5萬元\n4. 提供營業執照、經營場所證明等基礎材料\n\n申請流程：線上提交申請 → 系統審批 → 簽約放款，最快1天即可完成。',
-            '對公轉賬流程': '對公轉賬流程指引：\n1. 登錄企業網銀，進入"轉賬匯款"模組\n2. 填寫收款方帳戶資訊、轉賬金額\n3. 選擇到賬方式：實時到賬（5萬以下實時，5萬以上工作日9-17點實時）、普通到賬（2小時內）、次日到賬\n4. 驗證U盾或短信驗證碼完成提交\n\n大額轉賬需要提前預約哦。',
-            '發票開具指引': '電子發票開具指引：\n1. 登錄企業網銀，進入"發票服務"模組\n2. 選擇"開具電子發票"，填寫購買方資訊\n3. 選擇開票項目、金額，確認無誤後提交\n4. 系統自動生成電子發票，發送至您的郵箱\n\n您也可以通過我們的企業微信小程序完成開票操作。',
-            '對公轉賬多久到賬': '對公轉賬到賬時間：\n- 同行轉賬：實時到賬，7×24小時支援\n- 跨行轉賬：\n  • 5萬元以下：7×24小時實時到賬\n  • 5萬元以上：工作日9:00-17:00實時到賬，非工作時間順延至下一工作日\n您可以根據您的需求選擇合適的轉賬方式。',
-            '電子發票怎麼開': '電子發票開具步驟：\n1. 訪問我行企業網銀，登錄您的企業帳戶\n2. 找到"金融服務"下的"電子發票"入口\n3. 填寫購買方的名稱、稅號等資訊\n4. 選擇需要開票的交易記錄，確認開票金額\n5. 提交後，電子發票會自動發送到您預留的郵箱，您可以下載列印。',
-            '普惠貼息政策': '最新普惠貸款貼息政策：\n針對小微企業的普惠貸款，我行提供貼息支持：\n1. 貼息比例：對符合條件的貸款，給予年化1%的利息補貼\n2. 申請條件：企業屬於小微企業名錄，貸款用於生產經營\n3. 申請方式：貸款審批通過後，自動享受貼息政策，無需額外申請\n4. 政策有效期：2026年12月31日前',
-            '默認': '感謝您的提問，我已收到您的問題："{question}"\n\n我正在為您查詢相關資訊，稍後會為您提供詳細解答。如果您的問題比較緊急，也可以點擊右上角的電話圖標，直接聯繫我們的人工客服。'
-        };
-
-        function addMessage(content, isUser = false) {
-            const messageDiv = document.createElement('div');
-            messageDiv.className = `flex items-start message-fade-in ${isUser ? 'flex-row-reverse' : ''}`;
-            let avatar, bgColor;
-            if (isUser) {
-                avatar = `<div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center ml-3 flex-shrink-0"><i class="fa fa-user text-white text-sm"></i></div>`;
-                bgColor = 'bg-primary text-white rounded-lg rounded-tr-none';
-            } else {
-                avatar = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div>`;
-                bgColor = 'bg-neutral rounded-lg rounded-tl-none';
-            }
-            const formattedContent = content.replace(/\n/g, '<br>');
-            messageDiv.innerHTML = `${avatar}<div class="${bgColor} px-4 py-3 max-w-[80%]"><p class="${isUser ? 'text-white' : 'text-gray-800'}">${formattedContent}</p></div>`;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function addTypingIndicator() {
-            const typingDiv = document.createElement('div');
-            typingDiv.id = 'typingIndicator';
-            typingDiv.className = 'flex items-start message-fade-in';
-            typingDiv.innerHTML = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div><div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3"><div class="typing-indicator flex space-x-1"><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span></div></div>`;
-            chatMessages.appendChild(typingDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function removeTypingIndicator() {
-            const typingIndicator = document.getElementById('typingIndicator');
-            if (typingIndicator) typingIndicator.remove();
-        }
-
     function quickQuestion(question) {
-        addMessage(question, true);
-        setTimeout(() => addMessage(replies[question] || replies['默認']), 500);
+        // For landing page, redirect to app.html with the question
+        window.location.href = 'app.html?question=' + encodeURIComponent(question);
     }
-
-        function sendMessage() {
-            const message = messageInput.value.trim();
-            if (!message) return;
-            addMessage(message, true);
-            messageInput.value = '';
-            setTimeout(() => { addTypingIndicator(); setTimeout(() => { removeTypingIndicator();
-                let reply = replies[message];
-                if (!reply) {
-                    if (message.includes('餘額') || message.includes('帳戶')) reply = replies['查詢帳戶餘額'];
-                    else if (message.includes('貸款') || message.includes('經營貸') || message.includes('融資')) reply = replies['經營貸申請條件'];
-                    else if (message.includes('轉賬') || message.includes('支付')) reply = replies['對公轉賬流程'];
-                    else if (message.includes('發票') || message.includes('稅務')) reply = replies['發票開具指引'];
-                    else if (message.includes('政策') || message.includes('貼息')) reply = replies['普惠貼息政策'];
-                    else reply = replies['默認'].replace('{question}', message);
-                }
-                addMessage(reply);
-            }, 1000); }, 300);
-        }
-
-        function handleKeyPress(event) {
-            if (event.key === 'Enter') sendMessage();
-        }
-
-        function handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                addMessage(`已上傳文件：${file.name}`, true);
-                // 這裡可以添加將文件保存到 documents 目錄的邏輯，但需後端支援
-            }
-        }
-    </script>
+</script>
 </body>
 </html>

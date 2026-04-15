@@ -1,0 +1,365 @@
+{
+  "flows": {
+    "public": {
+      "start": "q_welcome",
+      "q_welcome": {
+        "id": "q_welcome",
+        "type": "options",
+        "content": "您好！歡迎使用 Pegasus。請選擇您想了解的服務：",
+        "isLoggedIn": false,
+        "options": [
+          { "label": "開設企業帳戶", "next": "q_account_type" },
+          { "label": "基本金融服務", "next": "q_services" },
+          { "label": "常見問題", "next": "q_faq" }
+        ]
+      },
+      "q_account_type": {
+        "id": "q_account_type",
+        "type": "options",
+        "content": "請選擇您想開設的帳戶類型：",
+        "options": [
+          { "label": "基本戶", "next": "q_account_basic" },
+          { "label": "一般戶", "next": "q_account_general" },
+          { "label": "返回", "next": "q_welcome" }
+        ]
+      },
+      "q_account_basic": {
+        "id": "q_account_basic",
+        "type": "steps",
+        "content": "基本戶開設流程",
+        "steps": [
+          {
+            "step": 1,
+            "title": "準備材料",
+            "content": "• 營業執照副本\n• 企業法人身份證\n• 公章\n• 經營地址證明",
+            "feedback": "您已準備好所有材料嗎？"
+          },
+          {
+            "step": 2,
+            "title": "提交申請",
+            "content": "• 訪問我行官網\n• 填寫開戶表格\n• 上傳相關文件",
+            "feedback": "您已提交申請了嗎？"
+          },
+          {
+            "step": 3,
+            "title": "審批流程",
+            "content": "• 我們將在 3-5 個工作日內審批\n• 您會收到短信/郵件通知",
+            "feedback": "您收到審批結果了嗎？"
+          },
+          {
+            "step": 4,
+            "title": "開戶完成",
+            "content": "• 帳戶已激活\n• 您可以開始使用網銀服務\n• 默認密碼已發送至預留郵箱",
+            "feedback": "是否需要進一步幫助？"
+          }
+        ],
+        "nextAfterSteps": "q_account_help"
+      },
+      "q_account_general": {
+        "id": "q_account_general",
+        "type": "steps",
+        "content": "一般戶開設流程",
+        "steps": [
+          {
+            "step": 1,
+            "title": "先決條件",
+            "content": "• 已開設基本戶\n• 已開設至少一個一般戶（若為跨地區經營）",
+            "feedback": "您滿足先決條件嗎？"
+          },
+          {
+            "step": 2,
+            "title": "提交申請",
+            "content": "• 通過企業網銀申請\n• 或提交書面申請",
+            "feedback": "申請方式已確定？"
+          },
+          {
+            "step": 3,
+            "title": "等待審批",
+            "content": "• 審批時間：1-3 個工作日",
+            "feedback": "已提交申請？"
+          },
+          {
+            "step": 4,
+            "title": "開戶完成",
+            "content": "• 一般戶已開設\n• 可用於專項業務",
+            "feedback": "是否需要其他幫助？"
+          }
+        ],
+        "nextAfterSteps": "q_account_help"
+      },
+      "q_account_help": {
+        "id": "q_account_help",
+        "type": "options",
+        "content": "還有其他問題嗎？",
+        "options": [
+          { "label": "了解其他服務", "next": "q_services" },
+          { "label": "返回主菜單", "next": "q_welcome" },
+          { "label": "聯絡客服", "next": "q_contact" }
+        ]
+      },
+      "q_services": {
+        "id": "q_services",
+        "type": "options",
+        "content": "請選擇您想了解的服務：",
+        "options": [
+          { "label": "帳戶管理", "next": "q_service_account" },
+          { "label": "支付結算", "next": "q_service_payment" },
+          { "label": "返回", "next": "q_welcome" }
+        ]
+      },
+      "q_service_account": {
+        "id": "q_service_account",
+        "type": "text",
+        "content": "帳戶管理相關服務：\n\n1. 帳戶餘額查詢\n2. 交易明細查詢\n3. 帳戶狀態查詢\n4. 掛失/解掛服務\n\n如需詳細協助，請聯絡客服。",
+        "next": "q_services"
+      },
+      "q_service_payment": {
+        "id": "q_service_payment",
+        "type": "text",
+        "content": "支付結算相關服務包括：\n\n1. 對公轉賬（支持實時、普通、次日到賬）\n2. 代發工資\n3. 票據服務\n4. 跨境結算\n\n如需詳細協助，請聯絡客服。",
+        "next": "q_services"
+      },
+      "q_faq": {
+        "id": "q_faq",
+        "type": "options",
+        "content": "常見問題：",
+        "options": [
+          { "label": "開戶需要多久？", "next": "q_faq_duration" },
+          { "label": "開戶費用多少？", "next": "q_faq_cost" },
+          { "label": "返回", "next": "q_welcome" }
+        ]
+      },
+      "q_faq_duration": {
+        "id": "q_faq_duration",
+        "type": "text",
+        "content": "開戶時間通常為 3-5 個工作日。\n\n加急申請（付費）可在 1-2 個工作日完成。",
+        "next": "q_faq"
+      },
+      "q_faq_cost": {
+        "id": "q_faq_cost",
+        "type": "text",
+        "content": "基本戶開設：免費\n\n一般戶開設：免費\n\n加急審批服務：¥500-1000（可選）",
+        "next": "q_faq"
+      },
+      "q_contact": {
+        "id": "q_contact",
+        "type": "text",
+        "content": "聯絡我們：\n\n電話：(852) 2748 8698\n郵箱：corporate@hsbc.com.hk\n工作時間：週一至週五 09:00-18:00",
+        "next": "q_welcome"
+      }
+    },
+    "loggedIn": {
+      "start": "q_logged_welcome",
+      "q_logged_welcome": {
+        "id": "q_logged_welcome",
+        "type": "options",
+        "content": "歡迎回來！請選擇您需要的服務：",
+        "isLoggedIn": true,
+        "options": [
+          { "label": "帳戶管理", "next": "q_account_management" },
+          { "label": "融資貸款", "next": "q_financing" },
+          { "label": "支付結算", "next": "q_payment" },
+          { "label": "稅務發票", "next": "q_tax" },
+          { "label": "政策諮詢", "next": "q_policy" }
+        ]
+      },
+      "q_account_management": {
+        "id": "q_account_management",
+        "type": "options",
+        "content": "帳戶管理服務：",
+        "options": [
+          { "label": "查詢帳戶餘額", "next": "q_balance" },
+          { "label": "交易明細", "next": "q_transaction" },
+          { "label": "帳戶狀態", "next": "q_status" },
+          { "label": "返回", "next": "q_logged_welcome" }
+        ]
+      },
+      "q_balance": {
+        "id": "q_balance",
+        "type": "text",
+        "content": "您當前對公帳戶餘額為：¥1,258,642.38\n\n其中：\n- 基本戶：¥892,456.72\n- 一般戶：¥366,185.66\n\n您可以通過企業網銀查看更詳細的交易明細。",
+        "next": "q_account_management"
+      },
+      "q_transaction": {
+        "id": "q_transaction",
+        "type": "text",
+        "content": "交易明細查詢：\n\n1. 登錄企業網銀\n2. 進入「帳戶」→「交易查詢」\n3. 選擇時間範圍\n4. 輸出或導出報表\n\n需要幫助？",
+        "next": "q_account_management"
+      },
+      "q_status": {
+        "id": "q_status",
+        "type": "text",
+        "content": "您的帳戶狀態：正常\n\n如有異常，請立即聯絡客服。",
+        "next": "q_account_management"
+      },
+      "q_financing": {
+        "id": "q_financing",
+        "type": "options",
+        "content": "融資貸款產品：",
+        "options": [
+          { "label": "小微經營貸", "next": "q_finance_micro" },
+          { "label": "科技信用貸", "next": "q_finance_tech" },
+          { "label": "供應鏈融資", "next": "q_finance_supply" },
+          { "label": "返回", "next": "q_logged_welcome" }
+        ]
+      },
+      "q_finance_micro": {
+        "id": "q_finance_micro",
+        "type": "steps",
+        "content": "小微經營貸申請流程",
+        "steps": [
+          {
+            "step": 1,
+            "title": "了解條件",
+            "content": "• 企業成立滿1年\n• 徵信良好\n• 近6個月月均流水≥5萬元",
+            "feedback": "您滿足條件嗎？"
+          },
+          {
+            "step": 2,
+            "title": "準備材料",
+            "content": "• 營業執照\n• 近3個月銀行流水\n• 近3年財務報表",
+            "feedback": "材料準備好了？"
+          },
+          {
+            "step": 3,
+            "title": "在線申請",
+            "content": "• 通過企業網銀申請\n• 上傳相關文件\n• 等待初審",
+            "feedback": "已提交申請？"
+          },
+          {
+            "step": 4,
+            "title": "審批與放款",
+            "content": "• 系統自動審批\n• 最快1天放款\n• 最高額度¥500萬",
+            "feedback": "是否需要加急？"
+          }
+        ],
+        "nextAfterSteps": "q_financing"
+      },
+      "q_finance_tech": {
+        "id": "q_finance_tech",
+        "type": "text",
+        "content": "科技信用貸產品優勢：\n\n• 針對科技型企業\n• 純信用無需抵押\n• 最高¥300萬\n• 年化3.5%-6%\n• 最快3天放款\n\n立即申請？",
+        "next": "q_financing"
+      },
+      "q_finance_supply": {
+        "id": "q_finance_supply",
+        "type": "text",
+        "content": "供應鏈融資服務：\n\n• 依託核心企業信用\n• 為上下游企業融資\n• 應收賬款融資\n• 預付款融資\n• 庫存融資\n\n了解更多？",
+        "next": "q_financing"
+      },
+      "q_payment": {
+        "id": "q_payment",
+        "type": "options",
+        "content": "支付結算服務：",
+        "options": [
+          { "label": "對公轉賬", "next": "q_payment_transfer" },
+          { "label": "代發工資", "next": "q_payment_payroll" },
+          { "label": "票據服務", "next": "q_payment_bill" },
+          { "label": "返回", "next": "q_logged_welcome" }
+        ]
+      },
+      "q_payment_transfer": {
+        "id": "q_payment_transfer",
+        "type": "text",
+        "content": "對公轉賬服務：\n\n• 實時到賬：5萬以下7×24小時，5萬以上工作日9-17點\n• 普通到賬：2小時內\n• 次日到賬：工作日到賬\n\n轉賬手續費優惠通道已開通。",
+        "next": "q_payment"
+      },
+      "q_payment_payroll": {
+        "id": "q_payment_payroll",
+        "type": "text",
+        "content": "代發工資服務：\n\n• 一鍵批量發放\n• 手續費優惠\n• 每月自動執行\n• 支持多銀行轉賬\n\n立即設置？",
+        "next": "q_payment"
+      },
+      "q_payment_bill": {
+        "id": "q_payment_bill",
+        "type": "text",
+        "content": "票據服務：\n\n• 匯票、本票、支票\n• 票據背書\n• 票據查驗\n• 專業顧問服務",
+        "next": "q_payment"
+      },
+      "q_tax": {
+        "id": "q_tax",
+        "type": "options",
+        "content": "稅務發票相關業務：",
+        "options": [
+          { "label": "電子發票開具", "next": "q_tax_invoice" },
+          { "label": "稅務籌劃", "next": "q_tax_planning" },
+          { "label": "銀稅互動", "next": "q_tax_interaction" },
+          { "label": "返回", "next": "q_logged_welcome" }
+        ]
+      },
+      "q_tax_invoice": {
+        "id": "q_tax_invoice",
+        "type": "steps",
+        "content": "電子發票開具流程",
+        "steps": [
+          {
+            "step": 1,
+            "title": "登錄系統",
+            "content": "• 訪問企業網銀\n• 進入「發票服務」模組",
+            "feedback": "已登錄？"
+          },
+          {
+            "step": 2,
+            "title": "填寫信息",
+            "content": "• 購買方名稱\n• 稅號\n• 項目和金額",
+            "feedback": "資訊填寫完成？"
+          },
+          {
+            "step": 3,
+            "title": "提交開票",
+            "content": "• 確認無誤\n• 點擊開票\n• 系統自動生成",
+            "feedback": "發票已生成？"
+          },
+          {
+            "step": 4,
+            "title": "接收發票",
+            "content": "• 電子發票發送至郵箱\n• 可下載或列印\n• 具有法律效力",
+            "feedback": "是否需要重複開票設置？"
+          }
+        ],
+        "nextAfterSteps": "q_tax"
+      },
+      "q_tax_planning": {
+        "id": "q_tax_planning",
+        "type": "text",
+        "content": "稅務籌劃諮詢：\n\n• 專業團隊提供方案\n• 合法降低稅負\n• 優化財務結構\n• 免費初步評估\n\n預約諮詢？",
+        "next": "q_tax"
+      },
+      "q_tax_interaction": {
+        "id": "q_tax_interaction",
+        "type": "text",
+        "content": "銀稅互動優勢：\n\n• 依託納稅信用\n• 獲取融資優惠\n• 貸款額度更高\n• 利率更低\n• 審批更快",
+        "next": "q_tax"
+      },
+      "q_policy": {
+        "id": "q_policy",
+        "type": "options",
+        "content": "普惠金融政策：",
+        "options": [
+          { "label": "普惠小微貸款支持", "next": "q_policy_micro" },
+          { "label": "減稅降費政策", "next": "q_policy_tax" },
+          { "label": "創業擔保貸款", "next": "q_policy_startup" },
+          { "label": "返回", "next": "q_logged_welcome" }
+        ]
+      },
+      "q_policy_micro": {
+        "id": "q_policy_micro",
+        "type": "text",
+        "content": "普惠小微貸款支持工具：\n\n• 符合條件的貸款給予貼息\n• 年化貼息1%\n• 貸款用於生產經營\n• 政策有效期至2026年12月31日",
+        "next": "q_policy"
+      },
+      "q_policy_tax": {
+        "id": "q_policy_tax",
+        "type": "text",
+        "content": "減稅降費政策：\n\n• 小規模納稅人增值稅減免\n• 小微企業所得稅優惠\n• 社保繳費減免\n• 符合條件自動享受",
+        "next": "q_policy"
+      },
+      "q_policy_startup": {
+        "id": "q_policy_startup",
+        "type": "text",
+        "content": "創業擔保貸款：\n\n• 針對初創企業\n• 政府擔保\n• 最高¥100萬\n• 貸款期限3年\n• 利息補貼政策可用",
+        "next": "q_policy"
+      }
+    }
+  }
+}
