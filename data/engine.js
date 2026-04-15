@@ -172,17 +172,17 @@ function displayCurrentNode() {
     displaySteps(node);
   } else if (node.type === 'options') {
     addMessage(node.content);
-    // 顯示選項按鈕
+    // 顯示選項按鈕需等回覆動畫結束
     setTimeout(() => {
       displayOptionsButtons(node.options);
-    }, 300);
+    }, 800);
   } else if (node.type === 'text') {
     addMessage(node.content);
-    // 對於 text 類型，顯示"返回"按鈕
+    // 顯示繼續/返回按鈕需等回覆動畫結束
     if (node.next) {
       setTimeout(() => {
         displayContinueButton(node.next);
-      }, 300);
+      }, 800);
     }
   }
 }
@@ -191,6 +191,13 @@ function displayCurrentNode() {
 function displayContinueButton(nextNodeId) {
   const chatMessages = document.getElementById('chatMessages');
   if (!chatMessages) return;
+  
+  // 檢查是否還有進一步的節點
+  const isLoggedIn = localStorage.getItem('hsbcLogin') === 'true';
+  const mainMenuId = isLoggedIn ? 'q_logged_welcome' : 'q_welcome';
+  
+  // 如果沒有 nextNodeId 或 nextNodeId 等於主菜單，視為流程結束
+  const isEndOfFlow = !nextNodeId || nextNodeId === mainMenuId;
   
   // 創建按鈕容器
   const buttonContainer = document.createElement('div');
@@ -202,8 +209,8 @@ function displayContinueButton(nextNodeId) {
   
   const btn = document.createElement('button');
   btn.className = 'px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-colors';
-  btn.textContent = '繼續';
-  btn.onclick = () => handleContinueClick(nextNodeId);
+  btn.textContent = isEndOfFlow ? '返回主菜單' : '繼續';
+  btn.onclick = () => handleContinueClick(nextNodeId || mainMenuId);
   buttonDiv.appendChild(btn);
   
   buttonContainer.appendChild(buttonDiv);
@@ -257,26 +264,25 @@ function handleOptionClick(label) {
 
 // 顯示步驟
 function displaySteps(node) {
-  addMessage(node.content + '\n\n--- 流程開始 ---');
-  
+  addMessage(node.content);
   let stepIndex = 0;
   const chatMessages = document.getElementById('chatMessages');
-  
+
   function showStep() {
     if (stepIndex < node.steps.length) {
       const step = node.steps[stepIndex];
-      const stepContent = `**第 ${step.step} 步: ${step.title}**\n\n${step.content}\n\n${step.feedback}`;
+      const stepContent = `【步驟 ${step.step}】${step.title}\n${step.content}\n${step.feedback}`;
       addMessage(stepContent);
-      
-      // 創建「繼續」按鈕 - 直接在聊天框中
+
+      // 等待回覆動畫結束再顯示按鈕
       setTimeout(() => {
         const buttonContainer = document.createElement('div');
         buttonContainer.className = 'flex items-start message-fade-in';
         buttonContainer.innerHTML = '<div class="w-8 h-8 flex-shrink-0"></div>';
-        
+
         const buttonDiv = document.createElement('div');
         buttonDiv.className = 'flex flex-wrap gap-2 ml-3';
-        
+
         const continueBtn = document.createElement('button');
         continueBtn.className = 'px-4 py-2 bg-primary text-white text-sm rounded-lg hover:bg-primary/90 transition-colors';
         continueBtn.textContent = '繼續';
@@ -284,25 +290,25 @@ function displaySteps(node) {
           stepIndex++;
           showStep();
         };
-        
+
         buttonDiv.appendChild(continueBtn);
         buttonContainer.appendChild(buttonDiv);
-        
+
         if (chatMessages) {
           chatMessages.appendChild(buttonContainer);
           chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-      }, 300);
+      }, 800);
     } else {
       // 所有步驟完成
       addMessage('✓ 所有步驟已完成！');
       setTimeout(() => {
         conversationEngine.handleNodeResponse('steps', null);
         displayCurrentNode();
-      }, 500);
+      }, 400);
     }
   }
-  
+
   showStep();
 }
 
@@ -312,4 +318,51 @@ function restartConversation() {
     conversationEngine.initFlow();
     displayCurrentNode();
   }
+}
+
+// 新增：延遲回覆與打字動畫
+function addMessage(content, isUser = false) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `flex items-start message-fade-in ${isUser ? 'flex-row-reverse' : ''}`;
+    let avatar, bgColor;
+    if (isUser) {
+        avatar = `<div class="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center ml-3 flex-shrink-0"><i class="fa fa-user text-white text-sm"></i></div>`;
+        bgColor = 'bg-primary text-white rounded-lg rounded-tr-none';
+    } else {
+        avatar = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div>`;
+        bgColor = 'bg-neutral rounded-lg rounded-tl-none';
+    }
+    const formattedContent = content.replace(/\n/g, '<br>');
+
+    if (!isUser) {
+        addTypingIndicator();
+        setTimeout(() => {
+            removeTypingIndicator();
+            messageDiv.innerHTML = `${avatar}<div class=\"${bgColor} px-4 py-3 max-w-[80%]\"><p class=\"${isUser ? 'text-white' : 'text-gray-800'}\">${formattedContent}</p></div>`;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }, 500);
+    } else {
+        messageDiv.innerHTML = `${avatar}<div class=\"${bgColor} px-4 py-3 max-w-[80%]\"><p class=\"${isUser ? 'text-white' : 'text-gray-800'}\">${formattedContent}</p></div>`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+}
+
+// 打字動畫
+function addTypingIndicator() {
+    const chatMessages = document.getElementById('chatMessages');
+    if (!chatMessages) return;
+    removeTypingIndicator();
+    const typingDiv = document.createElement('div');
+    typingDiv.id = 'typingIndicator';
+    typingDiv.className = 'flex items-start message-fade-in';
+    typingDiv.innerHTML = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div><div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3"><span class="text-gray-400">...</span></div>`;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typingIndicator');
+    if (typingIndicator) typingIndicator.remove();
 }

@@ -45,7 +45,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <img src="https://www.business.hsbc.com.hk/-/media/new-logos/svg/traditional-chinese-rgb.svg?iar=0&hash=9C4263346BF2D4FF0318A248A60DA1FF" alt="HSBC Logo" class="h-8 mr-2">
+                        <a href="home.html"><img src="https://www.business.hsbc.com.hk/-/media/new-logos/svg/traditional-chinese-rgb.svg?iar=0&hash=9C4263346BF2D4FF0318A248A60DA1FF" alt="HSBC Logo" class="h-8 mr-2"></a>
                     </div>
                     <nav class="hidden md:ml-10 md:flex space-x-8">
                         <a href="#" class="text-primary border-b-2 border-primary px-1 py-5 text-sm font-medium">企業服務</a>
@@ -66,54 +66,51 @@
 
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)]">
-                <div class="bg-white rounded-xl shadow-sm overflow-hidden flex flex-col h-[calc(100vh-12rem)]">
-                    <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-                        <div class="flex items-center">
-                            <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
-                                <i class="fa fa-robot text-primary"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-medium text-dark">Pegasus</h3>
-                                <p class="text-xs text-green-500">線上，隨時為您服務</p>
-                            </div>
-                        </div>
-                        <div class="flex space-x-3">
-                            <button class="text-gray-400 hover:text-gray-600"><i class="fa fa-phone"></i></button>
-                            <button class="text-gray-400 hover:text-gray-600"><i class="fa fa-ellipsis-v"></i></button>
-                        </div>
+            <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                        <i class="fa fa-robot text-primary"></i>
                     </div>
-
-                    <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4 chat-scrollbar">
-                        <div class="flex items-start message-fade-in">
-                            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0">
-                                <i class="fa fa-robot text-primary text-sm"></i>
-                            </div>
-                            <div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3 max-w-[80%]">
-                                <p class="text-gray-800">您好！歡迎使用 Pegasus 😊</p>
-                                <p class="text-gray-800 mt-2">我可以為您提供帳戶查詢、貸款諮詢、支付結算、稅務發票等全方位的企業金融服務，請問有什麼可以幫您？</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="px-6 py-3 border-t border-gray-100">
-                        <div class="flex flex-wrap gap-2">
-                            <button onclick="quickQuestion('查詢帳戶餘額')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">查詢帳戶餘額</button>
-                            <button onclick="quickQuestion('經營貸申請條件')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">經營貸申請條件</button>
-                            <button onclick="quickQuestion('對公轉賬流程')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">對公轉賬流程</button>
-                            <button onclick="quickQuestion('發票開具指引')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">發票開具指引</button>
-                        </div>
-                    </div>
-
-                    <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
-                        <div class="flex items-center space-x-3">
-                            <input type="file" id="fileInput" style="display:none;" onchange="handleFileUpload(event)">
-                            <button onclick="document.getElementById('fileInput').click()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-paperclip"></i></button>
-                            <input type="text" id="messageInput" placeholder="請輸入您的問題..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" onkeypress="handleKeyPress(event)">
-                            <button onclick="sendMessage()" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90"><i class="fa fa-paper-plane"></i></button>
-                        </div>
-                        <p class="text-xs text-gray-400 mt-2 text-center">溫馨提示：我行不會通過聊天工具索要您的密碼、驗證碼，請妥善保管個人資訊。</p>
+                    <div>
+                        <h3 class="font-medium text-dark">Pegasus</h3>
+                        <p class="text-xs text-green-500">線上，隨時為您服務</p>
                     </div>
                 </div>
+                <div class="flex space-x-3">
+                    <button class="text-gray-400 hover:text-gray-600"><i class="fa fa-phone"></i></button>
+                    <button class="text-gray-400 hover:text-gray-600"><i class="fa fa-ellipsis-v"></i></button>
+                </div>
+            </div>
+
+            <div id="chatMessages" class="flex-1 overflow-y-auto p-6 space-y-4 chat-scrollbar">
+                <div class="flex items-start message-fade-in">
+                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0">
+                        <i class="fa fa-robot text-primary text-sm"></i>
+                    </div>
+                    <div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3 max-w-[80%]">
+                        <p class="text-gray-800">您好！歡迎使用 Pegasus 😊</p>
+                        <p class="text-gray-800 mt-2">我可以為您提供帳戶查詢、貸款諮詢、支付結算、稅務發票等全方位的企業金融服務，請問有什麼可以幫您？</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-3 border-t border-gray-100">
+                <div class="flex flex-wrap gap-2">
+                    <button onclick="quickQuestion('查詢帳戶餘額')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">查詢帳戶餘額</button>
+                    <button onclick="quickQuestion('經營貸申請條件')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">經營貸申請條件</button>
+                    <button onclick="quickQuestion('對公轉賬流程')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">對公轉賬流程</button>
+                    <button onclick="quickQuestion('發票開具指引')" class="px-3 py-1 bg-primary/10 text-primary text-xs rounded-full hover:bg-primary/20">發票開具指引</button>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 bg-gray-50">
+                <div class="flex items-center space-x-3">
+                    <input type="file" id="fileInput" style="display:none;" onchange="handleFileUpload(event)">
+                    <button onclick="document.getElementById('fileInput').click()" class="text-gray-400 hover:text-gray-600"><i class="fa fa-paperclip"></i></button>
+                    <input type="text" id="messageInput" placeholder="請輸入您的問題..." class="flex-1 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary" onkeypress="handleKeyPress(event)">
+                    <button onclick="sendMessage()" class="bg-primary text-white p-2 rounded-lg hover:bg-primary/90"><i class="fa fa-paper-plane"></i></button>
+                </div>
+                <p class="text-xs text-gray-400 mt-2 text-center">溫馨提示：我行不會通過聊天工具索要您的密碼、驗證碼，請妥善保管個人資訊。</p>
             </div>
         </div>
     </main>
@@ -145,19 +142,7 @@
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }
 
-    function addTypingIndicator() {
-        const typingDiv = document.createElement('div');
-        typingDiv.id = 'typingIndicator';
-        typingDiv.className = 'flex items-start message-fade-in';
-        typingDiv.innerHTML = `<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center mr-3 flex-shrink-0"><i class="fa fa-robot text-primary text-sm"></i></div><div class="bg-neutral rounded-lg rounded-tl-none px-4 py-3"><div class="typing-indicator flex space-x-1"><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span><span class="w-2 h-2 bg-gray-400 rounded-full"></span></div></div>`;
-        chatMessages.appendChild(typingDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
 
-    function removeTypingIndicator() {
-        const typingIndicator = document.getElementById('typingIndicator');
-        if (typingIndicator) typingIndicator.remove();
-    }
 
     function quickQuestion(question) {
         addMessage(question, true);
@@ -167,27 +152,13 @@
     function sendMessage() {
         const message = messageInput.value.trim();
         if (!message) return;
-        
         addMessage(message, true);
         messageInput.value = '';
-        
         setTimeout(() => {
             displayCurrentNode();
         }, 300);
     }
 
-    function handleKeyPress(event) {
-        if (event.key === 'Enter') sendMessage();
-    }
-
-    function handleFileUpload(event) {
-        const file = event.target.files[0];
-        if (file) {
-            addMessage(`已上傳文件：${file.name}`, true);
-        }
-    }
-
-    // 初始化
     async function init() {
         const success = await initializeEngine();
         if (success) {

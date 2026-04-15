@@ -45,7 +45,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center">
                     <div class="flex-shrink-0 flex items-center">
-                        <img src="https://www.business.hsbc.com.hk/-/media/new-logos/svg/traditional-chinese-rgb.svg?iar=0&hash=9C4263346BF2D4FF0318A248A60DA1FF" alt="HSBC Logo" class="h-8 mr-2">
+                        <a href="home.html"><img src="https://www.business.hsbc.com.hk/-/media/new-logos/svg/traditional-chinese-rgb.svg?iar=0&hash=9C4263346BF2D4FF0318A248A60DA1FF" alt="HSBC Logo" class="h-8 mr-2"></a>
                     </div>
                     <nav class="hidden md:ml-10 md:flex space-x-8">
                         <a href="#" class="text-primary border-b-2 border-primary px-1 py-5 text-sm font-medium">企業服務</a>
@@ -55,24 +55,18 @@
                     </nav>
                 </div>
                 <div class="flex items-center">
-                    <button onclick="window.location.href='login.html'" class="hidden md:block bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm font-medium mr-3">
+                    <div id="userInfo" class="hidden items-center">
+                        <i class="fa fa-user-circle text-primary text-2xl mr-2"></i>
+                        <span class="text-sm text-gray-600 mr-3">admin</span>
+                        <button onclick="logout()" class="bg-primary/10 text-primary px-3 py-2 rounded-lg text-sm">登出</button>
+                    </div>
+                    <button id="loginBtn" onclick="window.location.href='login.html'" class="md:block bg-primary/10 text-primary px-4 py-2 rounded-lg text-sm font-medium mr-3">
                         <i class="fa fa-user-o mr-1"></i> 企業登錄
                     </button>
                     <button class="md:hidden text-gray-500">
                         <i class="fa fa-bars text-xl"></i>
                     </button>
                 </div>
-                <div id="userInfo" class="hidden items-center">
-                    <span class="text-sm text-gray-600 mr-3">已登入</span>
-                    <button onclick="logout()" class="bg-gray-100 text-gray-600 px-3 py-2 rounded-lg text-sm">登出</button>
-                </div>
-                <script>
-                    if (isLoggedIn) {
-                        document.getElementById('userInfo').classList.remove('hidden');
-                    } else {
-                        document.getElementById('loginBtn').classList.remove('hidden');
-                    }
-                </script>
             </div>
         </div>
     </div>
@@ -90,18 +84,18 @@
             <div class="bg-white rounded-xl shadow-sm p-6 text-center">
                 <h3 class="text-xl font-semibold mb-4">直接輸入問題</h3>
                 <p class="text-gray-600 mb-4">立即詢問您的問題</p>
-                <button onclick="window.location.href='app.html'" class="bg-primary text-white px-6 py-3 rounded-lg">開始對話</button>
+                <button class="direct-input-btn bg-primary text-white px-6 py-3 rounded-lg">開始對話</button>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6 text-center">
+            <div id="loginOption" class="bg-white rounded-xl shadow-sm p-6 text-center">
                 <h3 class="text-xl font-semibold mb-4">登入以使用全部功能</h3>
                 <p class="text-gray-600 mb-4">登入後享受完整服務</p>
-                <button onclick="window.location.href='login.html'" class="bg-primary text-white px-6 py-3 rounded-lg">登入</button>
+                <button onclick="window.location.href='login.html'" class="login-btn bg-primary text-white px-6 py-3 rounded-lg">登入</button>
             </div>
         </div>
 
         <!-- 四個問題方格 -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="service-card bg-white rounded-xl shadow-sm p-6">
                 <div class="text-center mb-4">
                     <i class="fa fa-credit-card text-primary text-3xl mb-2"></i>
                     <h4 class="font-semibold">帳戶管理</h4>
@@ -109,7 +103,7 @@
                 <p class="text-gray-600 text-sm mb-4">查詢餘額、交易記錄等</p>
                 <button onclick="quickQuestion('帳戶管理')" class="w-full bg-primary/10 text-primary py-2 rounded-lg">了解更多</button>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="service-card bg-white rounded-xl shadow-sm p-6">
                 <div class="text-center mb-4">
                     <i class="fa fa-line-chart text-primary text-3xl mb-2"></i>
                     <h4 class="font-semibold">融資貸款</h4>
@@ -117,7 +111,7 @@
                 <p class="text-gray-600 text-sm mb-4">經營貸、信用貸等諮詢</p>
                 <button onclick="quickQuestion('融資貸款')" class="w-full bg-primary/10 text-primary py-2 rounded-lg">了解更多</button>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="service-card bg-white rounded-xl shadow-sm p-6">
                 <div class="text-center mb-4">
                     <i class="fa fa-exchange text-primary text-3xl mb-2"></i>
                     <h4 class="font-semibold">支付結算</h4>
@@ -125,7 +119,7 @@
                 <p class="text-gray-600 text-sm mb-4">轉賬、結算服務</p>
                 <button onclick="quickQuestion('支付結算')" class="w-full bg-primary/10 text-primary py-2 rounded-lg">了解更多</button>
             </div>
-            <div class="bg-white rounded-xl shadow-sm p-6">
+            <div class="service-card bg-white rounded-xl shadow-sm p-6">
                 <div class="text-center mb-4">
                     <i class="fa fa-file-text-o text-primary text-3xl mb-2"></i>
                     <h4 class="font-semibold">稅務發票</h4>
@@ -148,10 +142,102 @@
     </main>
 
 <script>
-    function quickQuestion(question) {
-        // For landing page, redirect to app.html with the question
-        window.location.href = 'app.html?question=' + encodeURIComponent(question);
+    function checkLoginStatus() {
+        const isLoggedIn = localStorage.getItem('hsbcLogin') === 'true';
+        const welcomeH1 = document.querySelector('h1');
+        const welcomeP = document.querySelector('p');
+        const directInputBtn = document.querySelector('.direct-input-btn');
+        const loginBtn = document.getElementById('loginBtn');
+        const userInfo = document.getElementById('userInfo');
+        const loginOption = document.getElementById('loginOption');
+        const serviceCards = document.querySelectorAll('.service-card');
+        const faqList = document.querySelector('ul');
+
+        if (isLoggedIn) {
+            // 登入版
+            welcomeH1.textContent = '歡迎回來，admin';
+            welcomeP.textContent = '請選擇您想了解的服務：';
+            directInputBtn.textContent = '開始對話';
+            directInputBtn.onclick = () => window.location.href = 'logged-app.html';
+            // 顯示用戶資訊，隱藏登入按鈕和選項
+            userInfo.classList.remove('hidden');
+            loginBtn.style.display = 'none';
+            loginOption.style.display = 'none';
+            // 調整 grid 為單列
+            const optionsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+            optionsGrid.classList.remove('md:grid-cols-2');
+            optionsGrid.classList.add('grid-cols-1');
+
+            // 改變服務卡
+            const loggedInServices = [
+                { icon: 'fa-credit-card', title: '帳戶管理', desc: '查詢餘額、交易記錄等' },
+                { icon: 'fa-line-chart', title: '融資貸款', desc: '經營貸、信用貸等諮詢' },
+                { icon: 'fa-exchange', title: '支付結算', desc: '轉賬、結算服務' },
+                { icon: 'fa-file-text-o', title: '稅務發票', desc: '發票開具、稅務諮詢' }
+            ];
+            serviceCards.forEach((card, index) => {
+                const service = loggedInServices[index];
+                card.querySelector('i').className = `fa ${service.icon} text-primary text-3xl mb-2`;
+                card.querySelector('h4').textContent = service.title;
+                card.querySelector('p').textContent = service.desc;
+                card.querySelector('button').onclick = () => quickQuestion(service.title);
+            });
+
+            // 改變常有問題
+            faqList.innerHTML = `
+                <li><button onclick="quickQuestion('查詢帳戶餘額')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">查詢帳戶餘額</button></li>
+                <li><button onclick="quickQuestion('經營貸申請條件')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">經營貸申請條件</button></li>
+                <li><button onclick="quickQuestion('對公轉賬多久到賬')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">對公轉賬多久到賬</button></li>
+                <li><button onclick="quickQuestion('電子發票怎麼開')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">電子發票怎麼開</button></li>
+            `;
+        } else {
+            // 未登入版
+            directInputBtn.onclick = () => window.location.href = 'public-app.html';
+            loginBtn.onclick = () => window.location.href = 'login.html';
+            loginOption.style.display = 'block';
+            loginBtn.classList.remove('hidden');
+            userInfo.classList.add('hidden');
+            // 確保 grid 是雙列
+            const optionsGrid = document.querySelector('.grid.grid-cols-1.md\\:grid-cols-2');
+            optionsGrid.classList.add('md:grid-cols-2');
+
+            // 改變服務卡為新用戶
+            const newUserServices = [
+                { icon: 'fa-user-plus', title: '開戶流程', desc: '企業開戶步驟指南' },
+                { icon: 'fa-gift', title: '開戶優惠', desc: '開戶優惠及獎勵' },
+                { icon: 'fa-line-chart', title: '企業貸款介紹', desc: '各種貸款產品介紹' },
+                { icon: 'fa-file-text-o', title: '稅務諮詢', desc: '稅務相關問題解答' }
+            ];
+            serviceCards.forEach((card, index) => {
+                const service = newUserServices[index];
+                card.querySelector('i').className = `fa ${service.icon} text-primary text-3xl mb-2`;
+                card.querySelector('h4').textContent = service.title;
+                card.querySelector('p').textContent = service.desc;
+                card.querySelector('button').onclick = () => quickQuestion(service.title);
+            });
+
+            // 改變常有問題
+            faqList.innerHTML = `
+                <li><button onclick="quickQuestion('開戶需要什麼文件')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">開戶需要什麼文件</button></li>
+                <li><button onclick="quickQuestion('開戶優惠詳情')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">開戶優惠詳情</button></li>
+                <li><button onclick="quickQuestion('企業貸款種類')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">企業貸款種類</button></li>
+                <li><button onclick="quickQuestion('稅務申報流程')" class="w-full text-left px-3 py-2 rounded-lg hover:bg-neutral text-sm text-gray-600">稅務申報流程</button></li>
+            `;
+        }
     }
+
+    function logout() {
+        localStorage.removeItem('hsbcLogin');
+        window.location.href = 'home.html';
+    }
+
+    function quickQuestion(question) {
+        const isLoggedIn = localStorage.getItem('hsbcLogin') === 'true';
+        const targetPage = isLoggedIn ? 'logged-app.html' : 'public-app.html';
+        window.location.href = `${targetPage}?question=${encodeURIComponent(question)}`;
+    }
+
+    window.addEventListener('load', checkLoginStatus);
 </script>
 </body>
 </html>
