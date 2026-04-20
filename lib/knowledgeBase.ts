@@ -50,11 +50,36 @@ export interface MarketSnapshot {
   updatedAt: string;
 }
 
+export type SupportedCurrencyCode = "USD" | "JPY" | "HKD" | "EUR" | "CNH";
+
+export interface CurrencyReference {
+  code: SupportedCurrencyCode;
+  name: string;
+  aliases: string[];
+}
+
+export interface FxRateSnapshot {
+  baseCurrency: SupportedCurrencyCode;
+  quoteCurrency: SupportedCurrencyCode;
+  rate: number;
+  source: string;
+  updatedAt: string;
+}
+
+export interface ClientBehaviorSignal {
+  id: string;
+  triggerCurrencies: SupportedCurrencyCode[];
+  message: string;
+  actionType: AgentActionType | null;
+  suggestions: SuggestionOption[];
+}
+
 export const globalQuickPrompts: SuggestionOption[] = [
   { label: "開立商業戶口", prompt: "我想開立新的商業戶口" },
   { label: "安排跨境轉賬", prompt: "我想安排一筆跨境轉賬" },
   { label: "設定薪資發放", prompt: "我想設定公司薪資發放流程" },
   { label: "規劃外匯對沖", prompt: "我想規劃外匯對沖" },
+  { label: "查 JPY-USD 匯率", prompt: "JPY-USD 匯率" },
   { label: "查 AAPL 股價", prompt: "查 AAPL 股價" },
 ];
 
@@ -108,6 +133,80 @@ export const publicMarketSnapshots: MarketSnapshot[] = [
     currency: "USD",
     changePercent: 0.4,
     updatedAt: "2026-04-20 03:55 EDT",
+  },
+];
+
+export const currencyReferences: CurrencyReference[] = [
+  {
+    code: "USD",
+    name: "美元",
+    aliases: ["usd", "美金", "us dollar", "dollar"],
+  },
+  {
+    code: "JPY",
+    name: "日圓",
+    aliases: ["jpy", "日元", "yen", "円", "yen japanese"],
+  },
+  {
+    code: "HKD",
+    name: "港幣",
+    aliases: ["hkd", "港元", "hk dollar"],
+  },
+  {
+    code: "EUR",
+    name: "歐元",
+    aliases: ["eur", "欧元", "euro"],
+  },
+  {
+    code: "CNH",
+    name: "離岸人民幣",
+    aliases: ["cnh", "cny", "人民幣", "人民币", "rmb", "yuan"],
+  },
+];
+
+export const publicFxRateSnapshots: FxRateSnapshot[] = [
+  {
+    baseCurrency: "USD",
+    quoteCurrency: "JPY",
+    rate: 149.72,
+    source: "公開市場參考",
+    updatedAt: "2026-04-20 15:40 HKT",
+  },
+  {
+    baseCurrency: "USD",
+    quoteCurrency: "HKD",
+    rate: 7.8086,
+    source: "公開市場參考",
+    updatedAt: "2026-04-20 15:40 HKT",
+  },
+  {
+    baseCurrency: "EUR",
+    quoteCurrency: "USD",
+    rate: 1.0824,
+    source: "公開市場參考",
+    updatedAt: "2026-04-20 15:40 HKT",
+  },
+  {
+    baseCurrency: "USD",
+    quoteCurrency: "CNH",
+    rate: 7.2368,
+    source: "公開市場參考",
+    updatedAt: "2026-04-20 15:40 HKT",
+  },
+];
+
+export const clientBehaviorSignals: ClientBehaviorSignal[] = [
+  {
+    id: "JPY_SETTLEMENT_PATTERN",
+    triggerCurrencies: ["JPY"],
+    message:
+      "另外，系統記錄顯示，您在過去 3 個月持續有 JPY 結算需求。若這類日圓付款屬固定週期，可考慮使用外匯對沖，預先鎖定部分成本波動。",
+    actionType: "FX_HEDGE",
+    suggestions: [
+      { label: "開始外匯對沖", prompt: "我想規劃外匯對沖" },
+      { label: "安排跨境轉賬", prompt: "我想安排一筆跨境轉賬" },
+      { label: "查 USD-JPY 匯率", prompt: "USD-JPY 匯率" },
+    ],
   },
 ];
 

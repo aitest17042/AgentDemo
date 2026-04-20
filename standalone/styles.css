@@ -299,8 +299,9 @@ input {
 .standalone-chat-card {
   display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 1 1 0%;
   min-height: 0;
+  height: 100%;
   overflow: hidden;
   border: 1px solid var(--border);
   border-radius: 24px;
@@ -414,16 +415,8 @@ input {
   background: rgba(254, 242, 242, 0.75);
 }
 
-.standalone-action-card.tone-blue {
-  background: rgba(239, 246, 255, 0.75);
-}
-
 .standalone-action-card.tone-amber {
   background: rgba(255, 251, 235, 0.85);
-}
-
-.standalone-action-card.tone-slate {
-  background: rgba(248, 250, 252, 0.9);
 }
 
 .standalone-action-card.tone-emerald {
@@ -462,79 +455,6 @@ input {
 }
 
 .standalone-action-copy h4 {
-  margin: 0;
-  color: #111827;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.standalone-action-copy p {
-  margin: 4px 0 0;
-  color: var(--text-muted);
-  font-size: 12px;
-  line-height: 1.6;
-}
-
-.standalone-action-button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: var(--surface);
-  color: #111827;
-  cursor: pointer;
-  transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
-}
-
-.standalone-action-button:hover {
-  background: #f9fafb;
-  color: var(--hsbc-red);
-}
-
-.standalone-action-button:hover svg {
-  transform: translateX(4px);
-}
-
-.standalone-action-button svg {
-  width: 16px;
-  height: 16px;
-  transition: transform 0.2s ease;
-}
-
-.standalone-workflow-card {
-  padding: 16px;
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  background: var(--surface);
-  box-shadow: 0 6px 18px rgba(15, 23, 42, 0.04);
-}
-
-.standalone-workflow-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.standalone-workflow-kicker {
-  margin: 0;
-  color: #9ca3af;
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.standalone-workflow-copy h4 {
-  margin: 6px 0 0;
-  color: #111827;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.standalone-workflow-badge {
   padding: 6px 10px;
   border: 1px solid var(--border);
   border-radius: 999px;

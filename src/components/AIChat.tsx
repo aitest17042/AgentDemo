@@ -26,7 +26,6 @@ import {
   runAgentTurn,
   type LocalChatMessage,
   type StorageDetails,
-  type WorkflowPreview,
 } from "../../lib/agentEngine";
 import { actionCardConfig, type SuggestionOption } from "../../lib/knowledgeBase";
 import { loadPersistedAgentState, savePersistedAgentState } from "../../lib/localState";
@@ -214,8 +213,6 @@ export function AIChat() {
                         />
                       )}
 
-                      {message.workflow && <WorkflowCard workflow={message.workflow} />}
-
                       {message.role === "model" && message.suggestions && message.suggestions.length > 0 && (
                         <SuggestionChips
                           suggestions={message.suggestions}
@@ -256,7 +253,7 @@ export function AIChat() {
             }}
           >
             <Input
-              placeholder="例如：我想設定薪資發放、規劃外匯對沖或查 AAPL 股價..."
+              placeholder="例如：JPY-USD 匯率、我想規劃外匯對沖，或查 AAPL 股價..."
               value={input}
               onChange={(event) => setInput(event.target.value)}
               className="rounded-xl border-gray-200 focus-visible:ring-hsbc-red"
@@ -322,42 +319,6 @@ function ActionCard({
         <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
       </Button>
     </motion.div>
-  );
-}
-
-function WorkflowCard({ workflow }: { workflow: WorkflowPreview }) {
-  return (
-    <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
-      <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] uppercase tracking-[0.16em] text-gray-400">
-            {workflow.status === "completed" ? "已完成摘要" : "進行中流程"}
-          </p>
-          <h4 className="text-sm font-bold text-gray-900 mt-1">{workflow.title}</h4>
-        </div>
-        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-600 font-normal">
-          {workflow.progressLabel}
-        </Badge>
-      </div>
-
-      {workflow.currentQuestion && (
-        <p className="text-xs text-gray-500 leading-relaxed">{workflow.currentQuestion}</p>
-      )}
-
-      {workflow.collectedFields.length > 0 && (
-        <div className="space-y-2">
-          {workflow.collectedFields.map((field) => (
-            <div
-              key={`${workflow.title}-${field.label}`}
-              className="flex items-start justify-between gap-3 text-xs"
-            >
-              <span className="text-gray-500 shrink-0">{field.label}</span>
-              <span className="text-gray-800 text-right leading-relaxed">{field.value}</span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
   );
 }
 

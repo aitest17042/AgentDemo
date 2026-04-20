@@ -41,6 +41,7 @@
     { label: '安排跨境轉賬', prompt: '我想安排一筆跨境轉賬' },
     { label: '設定薪資發放', prompt: '我想設定公司薪資發放流程' },
     { label: '規劃外匯對沖', prompt: '我想規劃外匯對沖' },
+    { label: '查 JPY-USD 匯率', prompt: 'JPY-USD 匯率' },
     { label: '查 AAPL 股價', prompt: '查 AAPL 股價' }
   ];
 
@@ -52,11 +53,44 @@
     { symbol: 'MSFT', name: 'Microsoft', aliases: ['microsoft', '微軟', '微软'], exchange: 'NASDAQ', price: 415.2, currency: 'USD', changePercent: 0.4, updatedAt: '2026-04-20 03:55 EDT' }
   ];
 
+  var CURRENCY_REFERENCES = [
+    { code: 'USD', name: '美元', aliases: ['usd', '美金', 'us dollar', 'dollar'] },
+    { code: 'JPY', name: '日圓', aliases: ['jpy', '日元', 'yen', '円', 'yen japanese'] },
+    { code: 'HKD', name: '港幣', aliases: ['hkd', '港元', 'hk dollar'] },
+    { code: 'EUR', name: '歐元', aliases: ['eur', '欧元', 'euro'] },
+    { code: 'CNH', name: '離岸人民幣', aliases: ['cnh', 'cny', '人民幣', '人民币', 'rmb', 'yuan'] }
+  ];
+
+  var SUPPORTED_CURRENCY_CODES = CURRENCY_REFERENCES.map(function (currency) {
+    return currency.code;
+  });
+
+  var PUBLIC_FX_RATE_SNAPSHOTS = [
+    { baseCurrency: 'USD', quoteCurrency: 'JPY', rate: 149.72, source: '公開市場參考', updatedAt: '2026-04-20 15:40 HKT' },
+    { baseCurrency: 'USD', quoteCurrency: 'HKD', rate: 7.8086, source: '公開市場參考', updatedAt: '2026-04-20 15:40 HKT' },
+    { baseCurrency: 'EUR', quoteCurrency: 'USD', rate: 1.0824, source: '公開市場參考', updatedAt: '2026-04-20 15:40 HKT' },
+    { baseCurrency: 'USD', quoteCurrency: 'CNH', rate: 7.2368, source: '公開市場參考', updatedAt: '2026-04-20 15:40 HKT' }
+  ];
+
+  var CLIENT_BEHAVIOR_SIGNALS = [
+    {
+      id: 'JPY_SETTLEMENT_PATTERN',
+      triggerCurrencies: ['JPY'],
+      message: '另外，系統記錄顯示，您在過去 3 個月持續有 JPY 結算需求。若這類日圓付款屬固定週期，可考慮使用外匯對沖，預先鎖定部分成本波動。',
+      actionType: 'FX_HEDGE',
+      suggestions: [
+        { label: '開始外匯對沖', prompt: '我想規劃外匯對沖' },
+        { label: '安排跨境轉賬', prompt: '我想安排一筆跨境轉賬' },
+        { label: '查 USD-JPY 匯率', prompt: 'USD-JPY 匯率' }
+      ]
+    }
+  ];
+
   var ACTION_CARD_CONFIG = {
     ACCOUNT_OPENING: { title: '匯豐商業戶口申請', description: '以多步流程收集公司資料、預估交易量與所需服務。', actionLabel: '開始開戶流程', prompt: '我想開立新的商業戶口', icon: 'userPlus', tone: 'tone-red' },
     TRANSFER: { title: '智能轉賬設定', description: '逐步確認轉賬類型、幣種、付款用途與批核安排。', actionLabel: '開始轉賬流程', prompt: '我想安排一筆跨境轉賬', icon: 'wallet', tone: 'tone-blue' },
     PAYROLL_SETUP: { title: '企業薪資發放規劃', description: '整理員工人數、付款日期、幣種與批核模式。', actionLabel: '開始薪資流程', prompt: '我想設定公司薪資發放流程', icon: 'building', tone: 'tone-amber' },
-    FX_HEDGE: { title: '外匯對沖規劃', description: '梳理外幣風險敞口、對沖期限與換匯節奏。', actionLabel: '開始外匯流程', prompt: '我想規劃外匯對沖', icon: 'exchange', tone: 'tone-slate' },
+    FX_HEDGE: { title: '外匯對沖規劃', description: '梳理外幣風險敞口、對沖期限與換匯節奏。', actionLabel: '開始外匯流程', prompt: '我想規劃外匯對沖', icon: 'exchange', tone: 'tone-blue' },
     WORKING_CAPITAL: { title: '營運資金融資規劃', description: '收集資金用途、所需額度與營運週期後再配對方案。', actionLabel: '開始融資流程', prompt: '我想規劃營運資金融資', icon: 'funding', tone: 'tone-emerald' },
     COLLECTIONS: { title: '商戶收款與對賬', description: '定義收款渠道、日均金額與對賬格式需求。', actionLabel: '開始收款流程', prompt: '我想規劃商戶收款與對賬', icon: 'landmark', tone: 'tone-purple' },
     INVESTMENT_PLANNING: { title: '企業閒置資金投資規劃', description: '把公開市場查價轉成可執行的資金配置與投資步驟。', actionLabel: '開始投資規劃', prompt: '我想規劃企業閒置資金投資', icon: 'growth', tone: 'tone-rose' }
@@ -208,6 +242,7 @@
   var STORAGE_KEY = 'hsbc-business-agent-state';
   var API_ENDPOINT = '/api/local-agent-state';
   var STOCK_KEYWORDS = ['股價', '股票', '報價', 'price', 'stock', 'ticker', 'quote'];
+  var FX_RATE_KEYWORDS = ['匯率', 'exchange rate', 'fx rate', 'fx quote', '貨幣對', '外幣報價'];
   var CANCEL_KEYWORDS = ['取消', '停止', '不要了', 'cancel', 'stop'];
   var RESTART_KEYWORDS = ['重新開始', '重來', 'restart', 'reset'];
   var RECORD_PREFIX = {
@@ -262,7 +297,7 @@
     '        <div class="standalone-messages" id="standalone-messages" aria-live="polite" aria-label="Chat messages"></div>' +
     '        <div class="standalone-composer">' +
     '          <form class="standalone-form" id="standalone-chat-form">' +
-    '            <input id="standalone-chat-input" class="standalone-input" type="text" autocomplete="off" placeholder="例如：我想設定薪資發放、規劃外匯對沖或查 AAPL 股價..." />' +
+    '            <input id="standalone-chat-input" class="standalone-input" type="text" autocomplete="off" placeholder="例如：JPY-USD 匯率、我想規劃外匯對沖，或查 AAPL 股價..." />' +
     '            <button class="standalone-send-button" id="standalone-send-button" type="submit" aria-label="Send message">' + ICONS.send + '</button>' +
     '          </form>' +
     '        </div>' +
@@ -316,12 +351,166 @@
     return isKeywordMatch(input, STOCK_KEYWORDS);
   }
 
+  function isFxRateKeywordQuery(input) {
+    return isKeywordMatch(input, FX_RATE_KEYWORDS);
+  }
+
   function isCancelCommand(input) {
     return isKeywordMatch(input, CANCEL_KEYWORDS);
   }
 
   function isRestartCommand(input) {
     return isKeywordMatch(input, RESTART_KEYWORDS);
+  }
+
+  function isSupportedCurrencyCode(code) {
+    return SUPPORTED_CURRENCY_CODES.indexOf(code) !== -1;
+  }
+
+  function extractCurrencyCodes(input) {
+    var normalizedInput = normalizeForMatch(input);
+
+    var matches = CURRENCY_REFERENCES.map(function (currency) {
+      var hitIndexes = [currency.code, currency.name].concat(currency.aliases)
+        .map(function (alias) {
+          return normalizeForMatch(alias);
+        })
+        .map(function (alias) {
+          return normalizedInput.indexOf(alias);
+        })
+        .filter(function (index) {
+          return index >= 0;
+        });
+
+      if (hitIndexes.length === 0) {
+        return null;
+      }
+
+      return {
+        code: currency.code,
+        index: Math.min.apply(Math, hitIndexes)
+      };
+    }).filter(function (match) {
+      return match !== null;
+    }).sort(function (left, right) {
+      return left.index - right.index;
+    });
+
+    var uniqueCodes = [];
+
+    matches.forEach(function (match) {
+      if (uniqueCodes.indexOf(match.code) === -1 && uniqueCodes.length < 2) {
+        uniqueCodes.push(match.code);
+      }
+    });
+
+    return uniqueCodes;
+  }
+
+  function parseFxPairQuery(input) {
+    var upperInput = String(input || '').toUpperCase();
+    var separatedMatch = upperInput.match(/([A-Z]{3})\s*[-/]\s*([A-Z]{3})/);
+
+    if (separatedMatch) {
+      var separatedBase = separatedMatch[1];
+      var separatedQuote = separatedMatch[2];
+
+      if (isSupportedCurrencyCode(separatedBase) && isSupportedCurrencyCode(separatedQuote) && separatedBase !== separatedQuote) {
+        return {
+          baseCurrency: separatedBase,
+          quoteCurrency: separatedQuote
+        };
+      }
+    }
+
+    var compactMatch = upperInput.match(/\b([A-Z]{6})\b/);
+
+    if (compactMatch) {
+      var compactBase = compactMatch[1].slice(0, 3);
+      var compactQuote = compactMatch[1].slice(3, 6);
+
+      if (isSupportedCurrencyCode(compactBase) && isSupportedCurrencyCode(compactQuote) && compactBase !== compactQuote) {
+        return {
+          baseCurrency: compactBase,
+          quoteCurrency: compactQuote
+        };
+      }
+    }
+
+    var extractedCodes = extractCurrencyCodes(input);
+
+    if (extractedCodes.length >= 2 && extractedCodes[0] !== extractedCodes[1]) {
+      return {
+        baseCurrency: extractedCodes[0],
+        quoteCurrency: extractedCodes[1]
+      };
+    }
+
+    return null;
+  }
+
+  function isBareFxPairInput(input) {
+    var trimmedInput = String(input || '').trim();
+
+    return /^[A-Za-z]{3}\s*[-/]\s*[A-Za-z]{3}$/.test(trimmedInput) || /^[A-Za-z]{6}$/.test(trimmedInput);
+  }
+
+  function findFxRateSnapshot(baseCurrency, quoteCurrency) {
+    var directSnapshot = PUBLIC_FX_RATE_SNAPSHOTS.find(function (snapshot) {
+      return snapshot.baseCurrency === baseCurrency && snapshot.quoteCurrency === quoteCurrency;
+    });
+
+    if (directSnapshot) {
+      return {
+        snapshot: directSnapshot,
+        resolvedRate: directSnapshot.rate
+      };
+    }
+
+    var reverseSnapshot = PUBLIC_FX_RATE_SNAPSHOTS.find(function (snapshot) {
+      return snapshot.baseCurrency === quoteCurrency && snapshot.quoteCurrency === baseCurrency;
+    });
+
+    if (reverseSnapshot) {
+      return {
+        snapshot: reverseSnapshot,
+        resolvedRate: 1 / reverseSnapshot.rate
+      };
+    }
+
+    return null;
+  }
+
+  function findClientBehaviorSignal(baseCurrency, quoteCurrency) {
+    return CLIENT_BEHAVIOR_SIGNALS.find(function (signal) {
+      return signal.triggerCurrencies.some(function (currency) {
+        return currency === baseCurrency || currency === quoteCurrency;
+      });
+    }) || null;
+  }
+
+  function formatFxRate(rate) {
+    if (rate >= 100) {
+      return rate.toFixed(2);
+    }
+
+    if (rate >= 1) {
+      return rate.toFixed(4);
+    }
+
+    return rate.toFixed(6);
+  }
+
+  function buildFxSuggestions(pair, signal) {
+    if (signal) {
+      return signal.suggestions;
+    }
+
+    return [
+      { label: '規劃外匯對沖', prompt: '我想規劃外匯對沖' },
+      { label: '安排跨境轉賬', prompt: '我想安排一筆跨境轉賬' },
+      { label: '查 ' + pair.quoteCurrency + '-' + pair.baseCurrency + ' 匯率', prompt: pair.quoteCurrency + '-' + pair.baseCurrency + ' 匯率' }
+    ];
   }
 
   function createUserMessage(content) {
@@ -560,6 +749,57 @@
     };
   }
 
+  function respondToFxLookup(pair, sessionState) {
+    var matchedSnapshot = findFxRateSnapshot(pair.baseCurrency, pair.quoteCurrency);
+
+    if (!matchedSnapshot) {
+      return respondToGenericFxPrompt(sessionState);
+    }
+
+    var signal = findClientBehaviorSignal(pair.baseCurrency, pair.quoteCurrency);
+    var directRate = matchedSnapshot.resolvedRate;
+    var inverseRate = 1 / directRate;
+
+    return {
+      sessionState: {
+        activeWorkflow: null,
+        savedRecords: sessionState.savedRecords
+      },
+      assistantMessage: {
+        content:
+          '截至 ' + matchedSnapshot.snapshot.updatedAt + '，' + pair.baseCurrency + '/' + pair.quoteCurrency + ' 的公開參考匯率約為 ' + formatFxRate(directRate) + '。\n\n換算參考：1 ' + pair.baseCurrency + ' 約等於 ' + formatFxRate(directRate) + ' ' + pair.quoteCurrency + '；1 ' + pair.quoteCurrency + ' 約等於 ' + formatFxRate(inverseRate) + ' ' + pair.baseCurrency + '。' + (signal ? '\n\n' + signal.message : ''),
+        type: signal && signal.actionType ? 'action' : 'text',
+        actionData: signal && signal.actionType ? { type: signal.actionType, prompt: ACTION_CARD_CONFIG[signal.actionType].prompt } : null,
+        suggestions: buildFxSuggestions(pair, signal),
+        workflow: {
+          title: '公開匯率參考',
+          status: 'completed',
+          progressLabel: '公開資料',
+          collectedFields: [
+            { label: '貨幣對', value: pair.baseCurrency + '/' + pair.quoteCurrency },
+            { label: '參考匯率', value: '1 ' + pair.baseCurrency + ' 約等於 ' + formatFxRate(directRate) + ' ' + pair.quoteCurrency },
+            { label: '更新時間', value: matchedSnapshot.snapshot.updatedAt },
+            { label: '資料來源', value: matchedSnapshot.snapshot.source }
+          ]
+        }
+      }
+    };
+  }
+
+  function respondToGenericFxPrompt(sessionState) {
+    return {
+      sessionState: sessionState,
+      assistantMessage: {
+        content: '我可以先提供公開參考匯率。請輸入貨幣對，例如 JPY-USD、USD-JPY、USD-HKD 或 EUR-USD。',
+        suggestions: [
+          { label: '查 JPY-USD 匯率', prompt: 'JPY-USD 匯率' },
+          { label: '查 USD-JPY 匯率', prompt: 'USD-JPY 匯率' },
+          { label: '規劃外匯對沖', prompt: '我想規劃外匯對沖' }
+        ]
+      }
+    };
+  }
+
   function respondToGenericStockPrompt(sessionState) {
     return {
       sessionState: sessionState,
@@ -619,6 +859,16 @@
       return respondToStockLookup(matchedStock, sessionState, storage);
     }
 
+    var matchedFxPair = parseFxPairQuery(input);
+
+    if (matchedFxPair && (isFxRateKeywordQuery(input) || isBareFxPairInput(input))) {
+      return respondToFxLookup(matchedFxPair, sessionState);
+    }
+
+    if (isFxRateKeywordQuery(input)) {
+      return respondToGenericFxPrompt(sessionState);
+    }
+
     if (isStockLookup(input)) {
       return respondToGenericStockPrompt(sessionState);
     }
@@ -630,6 +880,10 @@
     var config = ACTION_CARD_CONFIG[actionType];
 
     if (!config) {
+      return null;
+    }
+
+    if (config.tone === 'tone-blue') {
       return null;
     }
 
@@ -667,51 +921,6 @@
     return card;
   }
 
-  function createWorkflowCard(workflow) {
-    var card = createElement('div', 'standalone-workflow-card');
-    var header = createElement('div', 'standalone-workflow-header');
-    var copy = createElement('div', 'standalone-workflow-copy');
-    var kicker = createElement('p', 'standalone-workflow-kicker');
-    var title = document.createElement('h4');
-    var badge = createElement('span', 'standalone-workflow-badge');
-
-    kicker.textContent = workflow.status === 'completed' ? '已完成摘要' : '進行中流程';
-    title.textContent = workflow.title;
-    badge.textContent = workflow.progressLabel;
-
-    copy.appendChild(kicker);
-    copy.appendChild(title);
-    header.appendChild(copy);
-    header.appendChild(badge);
-    card.appendChild(header);
-
-    if (workflow.currentQuestion) {
-      var question = createElement('p', 'standalone-workflow-question');
-      question.textContent = workflow.currentQuestion;
-      card.appendChild(question);
-    }
-
-    if (Array.isArray(workflow.collectedFields) && workflow.collectedFields.length > 0) {
-      var list = createElement('div', 'standalone-workflow-list');
-
-      workflow.collectedFields.forEach(function (field) {
-        var row = createElement('div', 'standalone-workflow-row');
-        var label = createElement('span', 'standalone-workflow-label');
-        var value = createElement('span', 'standalone-workflow-value');
-
-        label.textContent = field.label;
-        value.textContent = field.value;
-        row.appendChild(label);
-        row.appendChild(value);
-        list.appendChild(row);
-      });
-
-      card.appendChild(list);
-    }
-
-    return card;
-  }
-
   function createSuggestionRow(suggestions) {
     var row = createElement('div', 'standalone-suggestion-row');
 
@@ -744,10 +953,6 @@
       if (actionCard) {
         body.appendChild(actionCard);
       }
-    }
-
-    if (message.workflow) {
-      body.appendChild(createWorkflowCard(message.workflow));
     }
 
     if (message.role === 'model' && Array.isArray(message.suggestions) && message.suggestions.length > 0) {

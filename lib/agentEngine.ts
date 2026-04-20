@@ -1,12 +1,17 @@
 import {
   actionCardConfig,
+  clientBehaviorSignals,
+  currencyReferences,
   globalQuickPrompts,
   intentCatalog,
+  publicFxRateSnapshots,
   publicMarketSnapshots,
   workflowDefinitions,
   type AgentActionType,
+  type ClientBehaviorSignal,
   type MarketSnapshot,
   type SuggestionOption,
+  type SupportedCurrencyCode,
 } from "./knowledgeBase";
 
 export interface StorageDetails {
@@ -81,6 +86,7 @@ export interface AgentTurnResult {
 }
 
 const STOCK_KEYWORDS = ["股價", "股票", "報價", "price", "stock", "ticker", "quote"];
+const FX_RATE_KEYWORDS = ["匯率", "exchange rate", "fx rate", "fx quote", "貨幣對", "外幣報價"];
 const CANCEL_KEYWORDS = ["取消", "停止", "不要了", "cancel", "stop"];
 const RESTART_KEYWORDS = ["重新開始", "重來", "restart", "reset"];
 
@@ -147,6 +153,15 @@ export function normalizeForMatch(text: string) {
     .replace(/[.,!?;:'"`~@#$%^&*()_+\-=[\]{}\\|<>/?，。！？；：「」『』（）【】《》、】【、]/g, "");
 }
 
+interface FxPairQuery {
+  baseCurrency: SupportedCurrencyCode;
+  quoteCurrency: SupportedCurrencyCode;
+}
+
+const supportedCurrencyCodes = new Set<SupportedCurrencyCode>(
+  currencyReferences.map((currency) => currency.code),
+);
+
 function isKeywordMatch(input: string, keywords: string[]) {
   const normalizedInput = normalizeForMatch(input);
 
@@ -167,12 +182,173 @@ function isStockLookup(input: string) {
   return isKeywordMatch(input, STOCK_KEYWORDS);
 }
 
+function isFxRateKeywordQuery(input: string) {
+  return isKeywordMatch(input, FX_RATE_KEYWORDS);
+}
+
 function isCancelCommand(input: string) {
   return isKeywordMatch(input, CANCEL_KEYWORDS);
 }
 
 function isRestartCommand(input: string) {
   return isKeywordMatch(input, RESTART_KEYWORDS);
+}
+
+function isSupportedCurrencyCode(code: string): code is SupportedCurrencyCode {
+  return supportedCurrencyCodes.has(code as SupportedCurrencyCode);
+}
+
+function extractCurrencyCodes(input: string): SupportedCurrencyCode[] {
+  const normalizedInput = normalizeForMatch(input);
+
+  const matches = currencyReferences
+    .map((currency) => {
+      const hitIndexes = [currency.code, currency.name, ...currency.aliases]
+        .map((alias) => normalizeForMatch(alias))
+        .map((alias) => normalizedInput.indexOf(alias))
+        .filter((index) => index >= 0);
+
+      if (hitIndexes.length === 0) {
+        return null;
+      }
+
+      return {
+        code: currency.code,
+        index: Math.min(...hitIndexes),
+      };
+    })
+    .filter((item): item is { code: SupportedCurrencyCode; index: number } => item !== null)
+    .sort((left, right) => left.index - right.index);
+
+  const uniqueCodes: SupportedCurrencyCode[] = [];
+
+  for (const match of matches) {
+    if (!uniqueCodes.includes(match.code)) {
+      uniqueCodes.push(match.code);
+    }
+
+    if (uniqueCodes.length === 2) {
+      break;
+    }
+  }
+
+  return uniqueCodes;
+}
+
+function parseFxPairQuery(input: string): FxPairQuery | null {
+  const upperInput = String(input || "").toUpperCase();
+  const separatedMatch = upperInput.match(/([A-Z]{3})\s*[-/]\s*([A-Z]{3})/);
+
+  if (separatedMatch) {
+    const [, baseCurrency, quoteCurrency] = separatedMatch;
+
+    if (
+      isSupportedCurrencyCode(baseCurrency) &&
+      isSupportedCurrencyCode(quoteCurrency) &&
+      baseCurrency !== quoteCurrency
+    ) {
+      return { baseCurrency, quoteCurrency };
+    }
+  }
+
+  const compactMatch = upperInput.match(/\b([A-Z]{6})\b/);
+
+  if (compactMatch) {
+    const [baseCurrency, quoteCurrency] = [compactMatch[1].slice(0, 3), compactMatch[1].slice(3, 6)];
+
+    if (
+      isSupportedCurrencyCode(baseCurrency) &&
+      isSupportedCurrencyCode(quoteCurrency) &&
+      baseCurrency !== quoteCurrency
+    ) {
+      return { baseCurrency, quoteCurrency };
+    }
+  }
+
+  const extractedCodes = extractCurrencyCodes(input);
+
+  if (extractedCodes.length >= 2 && extractedCodes[0] !== extractedCodes[1]) {
+    return {
+      baseCurrency: extractedCodes[0],
+      quoteCurrency: extractedCodes[1],
+    };
+  }
+
+  return null;
+}
+
+function isBareFxPairInput(input: string) {
+  const trimmedInput = String(input || "").trim();
+
+  return /^[A-Za-z]{3}\s*[-/]\s*[A-Za-z]{3}$/.test(trimmedInput) || /^[A-Za-z]{6}$/.test(trimmedInput);
+}
+
+function findFxRateSnapshot(baseCurrency: SupportedCurrencyCode, quoteCurrency: SupportedCurrencyCode) {
+  const directSnapshot = publicFxRateSnapshots.find(
+    (snapshot) =>
+      snapshot.baseCurrency === baseCurrency && snapshot.quoteCurrency === quoteCurrency,
+  );
+
+  if (directSnapshot) {
+    return {
+      snapshot: directSnapshot,
+      resolvedRate: directSnapshot.rate,
+    };
+  }
+
+  const reverseSnapshot = publicFxRateSnapshots.find(
+    (snapshot) =>
+      snapshot.baseCurrency === quoteCurrency && snapshot.quoteCurrency === baseCurrency,
+  );
+
+  if (reverseSnapshot) {
+    return {
+      snapshot: reverseSnapshot,
+      resolvedRate: 1 / reverseSnapshot.rate,
+    };
+  }
+
+  return null;
+}
+
+function findClientBehaviorSignal(baseCurrency: SupportedCurrencyCode, quoteCurrency: SupportedCurrencyCode) {
+  return (
+    clientBehaviorSignals.find((signal) => {
+      return signal.triggerCurrencies.some((currency) => {
+        return currency === baseCurrency || currency === quoteCurrency;
+      });
+    }) ?? null
+  );
+}
+
+function formatFxRate(rate: number) {
+  if (rate >= 100) {
+    return rate.toFixed(2);
+  }
+
+  if (rate >= 1) {
+    return rate.toFixed(4);
+  }
+
+  return rate.toFixed(6);
+}
+
+function buildFxSuggestions(
+  pair: FxPairQuery,
+  signal: ClientBehaviorSignal | null,
+): SuggestionOption[] {
+  if (signal) {
+    return signal.suggestions;
+  }
+
+  return [
+    { label: "規劃外匯對沖", prompt: "我想規劃外匯對沖" },
+    { label: "安排跨境轉賬", prompt: "我想安排一筆跨境轉賬" },
+    {
+      label: `查 ${pair.quoteCurrency}-${pair.baseCurrency} 匯率`,
+      prompt: `${pair.quoteCurrency}-${pair.baseCurrency} 匯率`,
+    },
+  ];
 }
 
 function findMarketSnapshot(input: string): MarketSnapshot | null {
@@ -436,6 +612,71 @@ function respondToStockLookup(
   };
 }
 
+function respondToFxLookup(
+  pair: FxPairQuery,
+  sessionState: AgentSessionState,
+): AgentTurnResult {
+  const matchedSnapshot = findFxRateSnapshot(pair.baseCurrency, pair.quoteCurrency);
+
+  if (!matchedSnapshot) {
+    return respondToGenericFxPrompt(sessionState);
+  }
+
+  const signal = findClientBehaviorSignal(pair.baseCurrency, pair.quoteCurrency);
+  const directRate = matchedSnapshot.resolvedRate;
+  const inverseRate = 1 / directRate;
+
+  return {
+    sessionState: {
+      ...sessionState,
+      activeWorkflow: null,
+    },
+    assistantMessage: {
+      content:
+        `截至 ${matchedSnapshot.snapshot.updatedAt}，${pair.baseCurrency}/${pair.quoteCurrency} 的公開參考匯率約為 ${formatFxRate(directRate)}。` +
+        `\n\n換算參考：1 ${pair.baseCurrency} 約等於 ${formatFxRate(directRate)} ${pair.quoteCurrency}；1 ${pair.quoteCurrency} 約等於 ${formatFxRate(inverseRate)} ${pair.baseCurrency}。` +
+        (signal ? `\n\n${signal.message}` : ""),
+      type: signal?.actionType ? "action" : "text",
+      actionData: signal?.actionType
+        ? {
+            type: signal.actionType,
+            prompt: actionCardConfig[signal.actionType].prompt,
+          }
+        : undefined,
+      suggestions: buildFxSuggestions(pair, signal),
+      workflow: {
+        title: "公開匯率參考",
+        status: "completed",
+        progressLabel: "公開資料",
+        collectedFields: [
+          { label: "貨幣對", value: `${pair.baseCurrency}/${pair.quoteCurrency}` },
+          {
+            label: "參考匯率",
+            value: `1 ${pair.baseCurrency} 約等於 ${formatFxRate(directRate)} ${pair.quoteCurrency}`,
+          },
+          { label: "更新時間", value: matchedSnapshot.snapshot.updatedAt },
+          { label: "資料來源", value: matchedSnapshot.snapshot.source },
+        ],
+      },
+    },
+  };
+}
+
+function respondToGenericFxPrompt(sessionState: AgentSessionState): AgentTurnResult {
+  return {
+    sessionState,
+    assistantMessage: {
+      content:
+        "我可以先提供公開參考匯率。請輸入貨幣對，例如 JPY-USD、USD-JPY、USD-HKD 或 EUR-USD。",
+      suggestions: [
+        { label: "查 JPY-USD 匯率", prompt: "JPY-USD 匯率" },
+        { label: "查 USD-JPY 匯率", prompt: "USD-JPY 匯率" },
+        { label: "規劃外匯對沖", prompt: "我想規劃外匯對沖" },
+      ],
+    },
+  };
+}
+
 function respondToGenericStockPrompt(sessionState: AgentSessionState): AgentTurnResult {
   return {
     sessionState,
@@ -506,6 +747,16 @@ export function runAgentTurn(
 
   if (matchedStock && normalizeForMatch(input) === normalizeForMatch(matchedStock.name)) {
     return respondToStockLookup(matchedStock, sessionState, storage);
+  }
+
+  const matchedFxPair = parseFxPairQuery(input);
+
+  if (matchedFxPair && (isFxRateKeywordQuery(input) || isBareFxPairInput(input))) {
+    return respondToFxLookup(matchedFxPair, sessionState);
+  }
+
+  if (isFxRateKeywordQuery(input)) {
+    return respondToGenericFxPrompt(sessionState);
   }
 
   if (isStockLookup(input)) {
