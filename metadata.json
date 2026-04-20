@@ -1,0 +1,10 @@
+{
+  "name": "HSBC HK SME AI Agent",
+  "description": "An agentic AI portal for HSBC HK SME banking, assisting with account opening, transactions, and business services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "AI-powered banking assistance",
+    "Automated SME account opening workflow",
+    "Smart transaction management"
+  ]
+}
