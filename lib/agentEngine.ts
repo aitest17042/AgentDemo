@@ -129,17 +129,11 @@ export function createAssistantMessage(payload: AgentMessagePayload): LocalChatM
   };
 }
 
-export function createWelcomeMessage(storage: StorageDetails): LocalChatMessage {
-  const storageLine =
-    storage.kind === "local-file"
-      ? `所有非公開流程草稿會先保存至 ${storage.path ?? "目前工作區檔案"}。`
-      : "目前在瀏覽器本地模式運作，流程草稿會保存於此裝置的本地儲存。";
-
+export function createWelcomeMessage(_storage: StorageDetails): LocalChatMessage {
   return createAssistantMessage({
     content:
       `您好！我是您的匯豐中小企 AI 助手。` +
-      `\n\n我可以協助您處理開戶、轉賬、薪資、營運融資、收款對賬、外匯對沖與企業投資規劃。` +
-      `\n\n${storageLine}`,
+      `\n\n我可以協助您處理開戶、轉賬、薪資、營運融資、收款對賬、外匯對沖與企業投資規劃。`,
     suggestions: globalQuickPrompts,
   });
 }
@@ -318,7 +312,7 @@ function continueWorkflow(
         activeWorkflow: null,
       },
       assistantMessage: {
-        content: `已取消「${workflow.title}」流程。如需稍後重開，我可隨時再建立新草稿。`,
+        content: `已取消「${workflow.title}」流程。如需稍後重開，我可隨時再為您整理一次。`,
         suggestions: globalQuickPrompts,
       },
     };
@@ -383,8 +377,7 @@ function continueWorkflow(
       content:
         `${workflow.completionLead}\n\n` +
         `摘要：\n${summary}\n\n` +
-        `草稿編號：${recordId}\n` +
-        `已保存至 ${storage.path ?? storage.label}。`,
+        `如需調整細節，我可以即時為您更新。`,
       suggestions: workflow.suggestions,
       workflow: buildWorkflowPreview(
         activeWorkflow.workflowId,
@@ -418,8 +411,7 @@ function respondToStockLookup(
         `${snapshot.currency} ${snapshot.price.toFixed(2)}，` +
         `日內變動 ${changePrefix}${snapshot.changePercent.toFixed(1)}%。\n\n` +
         `如果您現在查看股票價格，我建議不要只停留在查價；可以同時評估企業閒置資金是否適合做投資配置，` +
-        `以及是否需要處理相關換匯風險。\n\n` +
-        `這類公開市場資料不會額外另存，只會保留在本地對話紀錄。`,
+        `以及是否需要處理相關換匯風險。`,
       type: "action",
       actionData: {
         type: "INVESTMENT_PLANNING",
@@ -439,7 +431,6 @@ function respondToStockLookup(
           { label: "市場", value: snapshot.exchange },
           { label: "更新時間", value: snapshot.updatedAt },
         ],
-        storageLabel: storage.path ?? storage.label,
       },
     },
   };

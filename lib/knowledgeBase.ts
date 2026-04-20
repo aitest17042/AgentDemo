@@ -155,7 +155,7 @@ export const actionCardConfig: Record<
     tone: "tone-slate",
   },
   WORKING_CAPITAL: {
-    title: "營運資金融資草稿",
+    title: "營運資金融資規劃",
     description: "收集資金用途、所需額度與營運週期後再配對方案。",
     actionLabel: "開始融資流程",
     prompt: "我想規劃營運資金融資",
@@ -185,9 +185,9 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     id: "ACCOUNT_OPENING",
     title: "商業戶口開立",
     intro:
-      "可以，現在開始為您建立商業戶口申請草稿。我會逐步收集必要資料，先保存於本地工作區，之後您可再補文件或提交。",
+      "可以，現在開始為您整理商業戶口申請所需資料。我會逐步收集必要資訊，之後方便您核對、補文件或提交。",
     completionLead:
-      "商業戶口開立草稿已完成，我已把申請摘要整理好，方便您下一步核對資料與補交文件。",
+      "商業戶口開立資料已整理完成，我已把申請摘要準備好，方便您下一步核對與補交文件。",
     actionType: "ACCOUNT_OPENING",
     steps: [
       { id: "companyName", label: "公司名稱", prompt: "第 1 步：請提供公司註冊名稱。" },
@@ -206,9 +206,9 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     id: "TRANSFER",
     title: "轉賬與付款安排",
     intro:
-      "可以，我會用多步流程為您整理這筆付款安排，並先保存成草稿，之後再決定是否提交或加入常用收款人。",
+      "可以，我會用多步流程為您整理這筆付款安排，之後您可再決定是否提交或加入常用收款人。",
     completionLead:
-      "轉賬草稿已整理完成，金額、幣種與付款用途都已記錄，方便您下一步批核或重複使用。",
+      "轉賬安排已整理完成，金額、幣種與付款用途都已記錄，方便您下一步批核或重複使用。",
     actionType: "TRANSFER",
     steps: [
       { id: "transferType", label: "轉賬類型", prompt: "第 1 步：這是本地轉賬、海外匯款，還是定期付款？" },
@@ -227,9 +227,9 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     id: "PAYROLL_SETUP",
     title: "薪資發放流程",
     intro:
-      "可以，我會先為您建立薪資發放流程草稿，逐步整理員工規模、付款日與內部批核方式。",
+      "可以，我會先為您整理薪資發放流程，逐步確認員工規模、付款日與內部批核方式。",
     completionLead:
-      "薪資發放流程草稿已完成，您現在可以按這份摘要再補員工清單或設定重複批次。",
+      "薪資發放流程已整理完成，您現在可以按這份摘要再補員工清單或設定重複批次。",
     actionType: "PAYROLL_SETUP",
     steps: [
       { id: "headcount", label: "員工人數", prompt: "第 1 步：目前需要發薪的員工大概有多少人？" },
@@ -248,9 +248,9 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     id: "FX_HEDGE",
     title: "外匯對沖規劃",
     intro:
-      "可以，我先為您建立外匯對沖規劃草稿，逐步確認幣種敞口、時間跨度與換匯節奏。",
+      "可以，我先為您整理外匯對沖規劃，逐步確認幣種敞口、時間跨度與換匯節奏。",
     completionLead:
-      "外匯對沖規劃草稿已完成，您可根據這份摘要評估遠期、分段換匯或自然對沖安排。",
+      "外匯對沖規劃已整理完成，您可根據這份摘要評估遠期、分段換匯或自然對沖安排。",
     actionType: "FX_HEDGE",
     steps: [
       { id: "exposureCurrencies", label: "風險敞口幣種", prompt: "第 1 步：您主要面對哪些外幣風險？例如 USD、EUR、JPY。" },
@@ -271,7 +271,7 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     intro:
       "可以，我會先為您整理營運資金需求，再按金額、週期與用途配對較合適的融資方向。",
     completionLead:
-      "營運資金融資草稿已完成，您現在可按摘要準備文件、收入紀錄與未來提款安排。",
+      "營運資金融資規劃已完成，您現在可按摘要準備文件、收入紀錄與未來提款安排。",
     actionType: "WORKING_CAPITAL",
     steps: [
       { id: "fundingNeed", label: "資金用途", prompt: "第 1 步：這筆資金主要用於什麼？例如採購、擴張、營運周轉。" },
@@ -290,9 +290,9 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     id: "COLLECTIONS",
     title: "商戶收款與對賬",
     intro:
-      "可以，我先為您建立收款與對賬流程草稿，再根據渠道、交易量與結算要求提出安排。",
+      "可以，我先為您整理收款與對賬流程，再根據渠道、交易量與結算要求提出安排。",
     completionLead:
-      "收款與對賬流程草稿已完成，您可以按這份摘要再決定是否接入收款渠道或自動對賬。",
+      "收款與對賬流程已整理完成，您可以按這份摘要再決定是否接入收款渠道或自動對賬。",
     actionType: "COLLECTIONS",
     steps: [
       { id: "collectionChannel", label: "收款渠道", prompt: "第 1 步：您主要用網站、門市、支付連結，還是 B2B 轉賬收款？" },
@@ -311,9 +311,9 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     id: "INVESTMENT_PLANNING",
     title: "企業閒置資金投資規劃",
     intro:
-      "可以，我會把公開市場查價延伸成企業投資規劃草稿，先整理可動用資金、投資目標與風險承受度。",
+      "可以，我會把公開市場查價延伸成企業投資規劃，先整理可動用資金、投資目標與風險承受度。",
     completionLead:
-      "企業投資規劃草稿已完成，您現在可按這份摘要再決定是否進一步建立投資清單或換匯安排。",
+      "企業投資規劃已整理完成，您現在可按這份摘要再決定是否進一步建立投資清單或換匯安排。",
     actionType: "INVESTMENT_PLANNING",
     steps: [
       { id: "surplusCash", label: "可動用資金", prompt: "第 1 步：目前大概有多少閒置資金可用作投資？" },
@@ -324,7 +324,6 @@ export const workflowDefinitions: Record<AgentActionType, WorkflowDefinition> = 
     ],
     suggestions: [
       { label: "查另一隻股票", prompt: "查 700.HK 股價" },
-      { label: "規劃外匯對沖", prompt: "我想規劃外匯對沖" },
       { label: "檢視可動用餘額", prompt: "我想查公司戶口餘額" },
     ],
   },
@@ -348,7 +347,7 @@ export const intentCatalog: IntentDefinition[] = [
     id: "TRANSFER",
     keywords: ["轉賬", "轉帳", "匯款", "付款", "payment", "transfer", "wire"],
     response:
-      "我可以為您建立轉賬草稿，逐步確認轉賬類型、收款地、金額、用途與批核時間。",
+      "我可以為您整理轉賬流程，逐步確認轉賬類型、收款地、金額、用途與批核時間。",
     actionType: "TRANSFER",
     workflowId: "TRANSFER",
     suggestions: [
@@ -425,7 +424,7 @@ export const intentCatalog: IntentDefinition[] = [
     id: "INVESTMENT_PLANNING",
     keywords: ["投資", "理財", "配置資金", "wealth", "invest"],
     response:
-      "我可以把企業閒置資金規劃成較可執行的投資草稿，逐步確認資金規模、期限與風險承受度。",
+      "我可以把企業閒置資金規劃成較可執行的投資方案，逐步確認資金規模、期限與風險承受度。",
     actionType: "INVESTMENT_PLANNING",
     workflowId: "INVESTMENT_PLANNING",
     suggestions: [

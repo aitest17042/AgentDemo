@@ -151,12 +151,6 @@ export function AIChat() {
                 <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
                 隨時準備為您的業務提供支援
               </div>
-              <Badge variant="outline" className="bg-white border-gray-200 text-gray-600 font-normal">
-                {storageDetails.kind === "local-file" ? "本地檔案模式" : "本地瀏覽器模式"}
-              </Badge>
-              <Badge variant="outline" className="bg-white border-gray-200 text-gray-600 font-normal">
-                已保存 {sessionState.savedRecords.length} 份草稿
-              </Badge>
             </div>
           </div>
         </div>
@@ -276,11 +270,6 @@ export function AIChat() {
               <Send className="w-4 h-4" />
             </Button>
           </form>
-          <p className="text-[10px] text-center mt-3 text-gray-400">
-            {storageDetails.kind === "local-file"
-              ? `所有非公開流程草稿會先保存至 ${storageDetails.path ?? storageDetails.label}。`
-              : "目前使用瀏覽器本地儲存模式；如透過 Vite 啟動，系統會改為保存到工作區檔案。"}
-          </p>
         </div>
       </Card>
     </div>
@@ -342,7 +331,7 @@ function WorkflowCard({ workflow }: { workflow: WorkflowPreview }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-[0.16em] text-gray-400">
-            {workflow.status === "completed" ? "本地草稿" : "進行中流程"}
+            {workflow.status === "completed" ? "已完成摘要" : "進行中流程"}
           </p>
           <h4 className="text-sm font-bold text-gray-900 mt-1">{workflow.title}</h4>
         </div>
@@ -366,13 +355,6 @@ function WorkflowCard({ workflow }: { workflow: WorkflowPreview }) {
               <span className="text-gray-800 text-right leading-relaxed">{field.value}</span>
             </div>
           ))}
-        </div>
-      )}
-
-      {(workflow.recordId || workflow.storageLabel) && (
-        <div className="text-[11px] text-gray-400 border-t border-gray-100 pt-3 space-y-1">
-          {workflow.recordId && <p>草稿編號：{workflow.recordId}</p>}
-          {workflow.storageLabel && <p>保存位置：{workflow.storageLabel}</p>}
         </div>
       )}
     </div>

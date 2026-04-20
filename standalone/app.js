@@ -57,7 +57,7 @@
     TRANSFER: { title: '智能轉賬設定', description: '逐步確認轉賬類型、幣種、付款用途與批核安排。', actionLabel: '開始轉賬流程', prompt: '我想安排一筆跨境轉賬', icon: 'wallet', tone: 'tone-blue' },
     PAYROLL_SETUP: { title: '企業薪資發放規劃', description: '整理員工人數、付款日期、幣種與批核模式。', actionLabel: '開始薪資流程', prompt: '我想設定公司薪資發放流程', icon: 'building', tone: 'tone-amber' },
     FX_HEDGE: { title: '外匯對沖規劃', description: '梳理外幣風險敞口、對沖期限與換匯節奏。', actionLabel: '開始外匯流程', prompt: '我想規劃外匯對沖', icon: 'exchange', tone: 'tone-slate' },
-    WORKING_CAPITAL: { title: '營運資金融資草稿', description: '收集資金用途、所需額度與營運週期後再配對方案。', actionLabel: '開始融資流程', prompt: '我想規劃營運資金融資', icon: 'funding', tone: 'tone-emerald' },
+    WORKING_CAPITAL: { title: '營運資金融資規劃', description: '收集資金用途、所需額度與營運週期後再配對方案。', actionLabel: '開始融資流程', prompt: '我想規劃營運資金融資', icon: 'funding', tone: 'tone-emerald' },
     COLLECTIONS: { title: '商戶收款與對賬', description: '定義收款渠道、日均金額與對賬格式需求。', actionLabel: '開始收款流程', prompt: '我想規劃商戶收款與對賬', icon: 'landmark', tone: 'tone-purple' },
     INVESTMENT_PLANNING: { title: '企業閒置資金投資規劃', description: '把公開市場查價轉成可執行的資金配置與投資步驟。', actionLabel: '開始投資規劃', prompt: '我想規劃企業閒置資金投資', icon: 'growth', tone: 'tone-rose' }
   };
@@ -65,8 +65,8 @@
   var WORKFLOW_DEFINITIONS = {
     ACCOUNT_OPENING: {
       title: '商業戶口開立',
-      intro: '可以，現在開始為您建立商業戶口申請草稿。我會逐步收集必要資料，先保存於本地工作區，之後您可再補文件或提交。',
-      completionLead: '商業戶口開立草稿已完成，我已把申請摘要整理好，方便您下一步核對資料與補交文件。',
+      intro: '可以，現在開始為您整理商業戶口申請所需資料。我會逐步收集必要資訊，之後方便您核對、補文件或提交。',
+      completionLead: '商業戶口開立資料已整理完成，我已把申請摘要準備好，方便您下一步核對與補交文件。',
       actionType: 'ACCOUNT_OPENING',
       steps: [
         { id: 'companyName', label: '公司名稱', prompt: '第 1 步：請提供公司註冊名稱。' },
@@ -83,8 +83,8 @@
     },
     TRANSFER: {
       title: '轉賬與付款安排',
-      intro: '可以，我會用多步流程為您整理這筆付款安排，並先保存成草稿，之後再決定是否提交或加入常用收款人。',
-      completionLead: '轉賬草稿已整理完成，金額、幣種與付款用途都已記錄，方便您下一步批核或重複使用。',
+      intro: '可以，我會用多步流程為您整理這筆付款安排，之後您可再決定是否提交或加入常用收款人。',
+      completionLead: '轉賬安排已整理完成，金額、幣種與付款用途都已記錄，方便您下一步批核或重複使用。',
       actionType: 'TRANSFER',
       steps: [
         { id: 'transferType', label: '轉賬類型', prompt: '第 1 步：這是本地轉賬、海外匯款，還是定期付款？' },
@@ -101,8 +101,8 @@
     },
     PAYROLL_SETUP: {
       title: '薪資發放流程',
-      intro: '可以，我會先為您建立薪資發放流程草稿，逐步整理員工規模、付款日與內部批核方式。',
-      completionLead: '薪資發放流程草稿已完成，您現在可以按這份摘要再補員工清單或設定重複批次。',
+      intro: '可以，我會先為您整理薪資發放流程，逐步確認員工規模、付款日與內部批核方式。',
+      completionLead: '薪資發放流程已整理完成，您現在可以按這份摘要再補員工清單或設定重複批次。',
       actionType: 'PAYROLL_SETUP',
       steps: [
         { id: 'headcount', label: '員工人數', prompt: '第 1 步：目前需要發薪的員工大概有多少人？' },
@@ -119,8 +119,8 @@
     },
     FX_HEDGE: {
       title: '外匯對沖規劃',
-      intro: '可以，我先為您建立外匯對沖規劃草稿，逐步確認幣種敞口、時間跨度與換匯節奏。',
-      completionLead: '外匯對沖規劃草稿已完成，您可根據這份摘要評估遠期、分段換匯或自然對沖安排。',
+      intro: '可以，我先為您整理外匯對沖規劃，逐步確認幣種敞口、時間跨度與換匯節奏。',
+      completionLead: '外匯對沖規劃已整理完成，您可根據這份摘要評估遠期、分段換匯或自然對沖安排。',
       actionType: 'FX_HEDGE',
       steps: [
         { id: 'exposureCurrencies', label: '風險敞口幣種', prompt: '第 1 步：您主要面對哪些外幣風險？例如 USD、EUR、JPY。' },
@@ -138,7 +138,7 @@
     WORKING_CAPITAL: {
       title: '營運資金融資',
       intro: '可以，我會先為您整理營運資金需求，再按金額、週期與用途配對較合適的融資方向。',
-      completionLead: '營運資金融資草稿已完成，您現在可按摘要準備文件、收入紀錄與未來提款安排。',
+      completionLead: '營運資金融資規劃已完成，您現在可按摘要準備文件、收入紀錄與未來提款安排。',
       actionType: 'WORKING_CAPITAL',
       steps: [
         { id: 'fundingNeed', label: '資金用途', prompt: '第 1 步：這筆資金主要用於什麼？例如採購、擴張、營運周轉。' },
@@ -155,8 +155,8 @@
     },
     COLLECTIONS: {
       title: '商戶收款與對賬',
-      intro: '可以，我先為您建立收款與對賬流程草稿，再根據渠道、交易量與結算要求提出安排。',
-      completionLead: '收款與對賬流程草稿已完成，您可以按這份摘要再決定是否接入收款渠道或自動對賬。',
+      intro: '可以，我先為您整理收款與對賬流程，再根據渠道、交易量與結算要求提出安排。',
+      completionLead: '收款與對賬流程已整理完成，您可以按這份摘要再決定是否接入收款渠道或自動對賬。',
       actionType: 'COLLECTIONS',
       steps: [
         { id: 'collectionChannel', label: '收款渠道', prompt: '第 1 步：您主要用網站、門市、支付連結，還是 B2B 轉賬收款？' },
@@ -173,8 +173,8 @@
     },
     INVESTMENT_PLANNING: {
       title: '企業閒置資金投資規劃',
-      intro: '可以，我會把公開市場查價延伸成企業投資規劃草稿，先整理可動用資金、投資目標與風險承受度。',
-      completionLead: '企業投資規劃草稿已完成，您現在可按這份摘要再決定是否進一步建立投資清單或換匯安排。',
+      intro: '可以，我會把公開市場查價延伸成企業投資規劃，先整理可動用資金、投資目標與風險承受度。',
+      completionLead: '企業投資規劃已整理完成，您現在可按這份摘要再決定是否進一步建立投資清單或換匯安排。',
       actionType: 'INVESTMENT_PLANNING',
       steps: [
         { id: 'surplusCash', label: '可動用資金', prompt: '第 1 步：目前大概有多少閒置資金可用作投資？' },
@@ -193,13 +193,13 @@
 
   var INTENT_CATALOG = [
     { id: 'ACCOUNT_OPENING', keywords: ['開戶', '申請戶口', '商業戶口', 'business account', 'account opening'], response: '我可以直接為您啟動商業戶口開立流程，逐步整理公司資料、預計交易量與主要銀行需求。', actionType: 'ACCOUNT_OPENING', workflowId: 'ACCOUNT_OPENING', suggestions: [{ label: '開始開戶流程', prompt: '我想開立新的商業戶口' }, { label: '同時規劃收款', prompt: '我想規劃商戶收款與對賬' }, { label: '設定薪資流程', prompt: '我想設定公司薪資發放流程' }] },
-    { id: 'TRANSFER', keywords: ['轉賬', '轉帳', '匯款', '付款', 'payment', 'transfer', 'wire'], response: '我可以為您建立轉賬草稿，逐步確認轉賬類型、收款地、金額、用途與批核時間。', actionType: 'TRANSFER', workflowId: 'TRANSFER', suggestions: [{ label: '開始轉賬流程', prompt: '我想安排一筆跨境轉賬' }, { label: '加入外匯對沖', prompt: '我想規劃外匯對沖' }, { label: '設定定期付款', prompt: '我想安排一筆定期付款' }] },
+    { id: 'TRANSFER', keywords: ['轉賬', '轉帳', '匯款', '付款', 'payment', 'transfer', 'wire'], response: '我可以為您整理轉賬流程，逐步確認轉賬類型、收款地、金額、用途與批核時間。', actionType: 'TRANSFER', workflowId: 'TRANSFER', suggestions: [{ label: '開始轉賬流程', prompt: '我想安排一筆跨境轉賬' }, { label: '加入外匯對沖', prompt: '我想規劃外匯對沖' }, { label: '設定定期付款', prompt: '我想安排一筆定期付款' }] },
     { id: 'BALANCE_OVERVIEW', keywords: ['餘額', '結餘', '余额', 'balance', '現金', 'cash'], response: '您目前的「SME Power」港幣戶口可動用結餘為 HK$2,450,890.00。若這筆資金短期未動用，我建議同時評估付款排程、定期存放，或把一部分配置到投資工具。', actionType: 'INVESTMENT_PLANNING', suggestions: [{ label: '規劃閒置資金投資', prompt: '我想規劃企業閒置資金投資' }, { label: '分析現金流狀況', prompt: '幫我分析最近的現金流狀況' }, { label: '安排供應商付款', prompt: '我想安排一筆跨境轉賬' }] },
     { id: 'PAYROLL_SETUP', keywords: ['薪資', '出糧', '發薪', 'payroll', 'salary'], response: '我可以立即為您整理薪資發放流程，包括員工數量、付款日、幣種與批核安排。', actionType: 'PAYROLL_SETUP', workflowId: 'PAYROLL_SETUP', suggestions: [{ label: '開始薪資流程', prompt: '我想設定公司薪資發放流程' }, { label: '安排轉賬付款', prompt: '我想安排一筆跨境轉賬' }, { label: '補做收款對賬', prompt: '我想規劃商戶收款與對賬' }] },
     { id: 'FX_HEDGE', keywords: ['外匯', 'fx', '換匯', '對沖', 'hedge', 'currency'], response: '我可以為您啟動外匯對沖規劃，逐步整理幣種敞口、換匯節奏與風險目標。', actionType: 'FX_HEDGE', workflowId: 'FX_HEDGE', suggestions: [{ label: '開始外匯流程', prompt: '我想規劃外匯對沖' }, { label: '安排跨境轉賬', prompt: '我想安排一筆跨境轉賬' }, { label: '規劃投資配置', prompt: '我想規劃企業閒置資金投資' }] },
     { id: 'WORKING_CAPITAL', keywords: ['貸款', '融資', '借錢', 'working capital', 'finance', 'loan'], response: '我可以先為您整理營運資金需求，再根據金額、回款周期與可提供文件配對融資方案。', actionType: 'WORKING_CAPITAL', workflowId: 'WORKING_CAPITAL', suggestions: [{ label: '開始融資流程', prompt: '我想規劃營運資金融資' }, { label: '分析現金流狀況', prompt: '幫我分析最近的現金流狀況' }, { label: '規劃收款對賬', prompt: '我想規劃商戶收款與對賬' }] },
     { id: 'COLLECTIONS', keywords: ['收款', '對賬', 'merchant', 'collection', 'payment link', 'qr'], response: '我可以為您整理商戶收款與對賬需求，再配對合適的收款渠道與結算安排。', actionType: 'COLLECTIONS', workflowId: 'COLLECTIONS', suggestions: [{ label: '開始收款流程', prompt: '我想規劃商戶收款與對賬' }, { label: '規劃營運融資', prompt: '我想規劃營運資金融資' }, { label: '設定薪資流程', prompt: '我想設定公司薪資發放流程' }] },
-    { id: 'INVESTMENT_PLANNING', keywords: ['投資', '理財', '配置資金', 'wealth', 'invest'], response: '我可以把企業閒置資金規劃成較可執行的投資草稿，逐步確認資金規模、期限與風險承受度。', actionType: 'INVESTMENT_PLANNING', workflowId: 'INVESTMENT_PLANNING', suggestions: [{ label: '開始投資規劃', prompt: '我想規劃企業閒置資金投資' }, { label: '查匯豐股價', prompt: '查 0005.HK 股價' }, { label: '規劃外匯對沖', prompt: '我想規劃外匯對沖' }] },
+    { id: 'INVESTMENT_PLANNING', keywords: ['投資', '理財', '配置資金', 'wealth', 'invest'], response: '我可以把企業閒置資金規劃成較可執行的投資方案，逐步確認資金規模、期限與風險承受度。', actionType: 'INVESTMENT_PLANNING', workflowId: 'INVESTMENT_PLANNING', suggestions: [{ label: '開始投資規劃', prompt: '我想規劃企業閒置資金投資' }, { label: '查匯豐股價', prompt: '查 0005.HK 股價' }, { label: '規劃外匯對沖', prompt: '我想規劃外匯對沖' }] },
     { id: 'CASHFLOW_ADVISORY', keywords: ['現金流', '開支', 'cash flow', 'expense', '支出'], response: '根據近期交易模式，您可以把應付帳款、薪資與收款節奏拆開管理，這樣更容易看出可動用營運資金與短期閒置現金。', actionType: 'WORKING_CAPITAL', suggestions: [{ label: '規劃營運融資', prompt: '我想規劃營運資金融資' }, { label: '安排轉賬付款', prompt: '我想安排一筆跨境轉賬' }, { label: '規劃投資配置', prompt: '我想規劃企業閒置資金投資' }] },
     { id: 'GREETING', keywords: ['你好', '您好', 'hello', 'hi'], response: '您好，我可以協助您處理多步驟業務銀行流程，包括開戶、轉賬、薪資、融資、收款、外匯與投資規劃。', actionType: null, suggestions: GLOBAL_QUICK_PROMPTS }
   ];
@@ -254,10 +254,6 @@
     '          <div class="standalone-title-block">' +
     '            <h1>匯豐中小企 AI 助手</h1>' +
     '            <div class="standalone-live-status"><span class="standalone-live-dot" aria-hidden="true"></span><span>隨時準備為您的業務提供支援</span></div>' +
-    '            <div class="standalone-agent-meta">' +
-    '              <span class="standalone-meta-pill" id="standalone-storage-pill">本地檔案模式</span>' +
-    '              <span class="standalone-meta-pill" id="standalone-drafts-pill">已保存 0 份草稿</span>' +
-    '            </div>' +
     '          </div>' +
     '        </div>' +
     '        <div class="standalone-beta-badge">Beta - 智能虛擬助手</div>' +
@@ -269,7 +265,6 @@
     '            <input id="standalone-chat-input" class="standalone-input" type="text" autocomplete="off" placeholder="例如：我想設定薪資發放、規劃外匯對沖或查 AAPL 股價..." />' +
     '            <button class="standalone-send-button" id="standalone-send-button" type="submit" aria-label="Send message">' + ICONS.send + '</button>' +
     '          </form>' +
-    '          <p class="standalone-footnote" id="standalone-footnote">所有非公開流程草稿會先保存至 local-data/agent-state.json。</p>' +
     '        </div>' +
     '      </section>' +
     '    </div>' +
@@ -280,10 +275,6 @@
   var chatForm = document.getElementById('standalone-chat-form');
   var chatInput = document.getElementById('standalone-chat-input');
   var sendButton = document.getElementById('standalone-send-button');
-  var storagePill = document.getElementById('standalone-storage-pill');
-  var draftsPill = document.getElementById('standalone-drafts-pill');
-  var footnote = document.getElementById('standalone-footnote');
-
   function createElement(tagName, className) {
     var element = document.createElement(tagName);
 
@@ -354,14 +345,9 @@
   }
 
   function createWelcomeMessage(storage) {
-    var storageLine = storage.kind === 'local-file'
-      ? '所有非公開流程草稿會先保存至 ' + (storage.path || '目前工作區檔案') + '。'
-      : '目前在瀏覽器本地模式運作，流程草稿會保存於此裝置的本地儲存。';
-
     return createAssistantMessage({
       content:
-        '您好！我是您的匯豐中小企 AI 助手。\n\n我可以協助您處理開戶、轉賬、薪資、營運融資、收款對賬、外匯對沖與企業投資規劃。\n\n' +
-        storageLine,
+        '您好！我是您的匯豐中小企 AI 助手。\n\n我可以協助您處理開戶、轉賬、薪資、營運融資、收款對賬、外匯對沖與企業投資規劃。',
       suggestions: GLOBAL_QUICK_PROMPTS
     });
   }
@@ -479,7 +465,7 @@
           savedRecords: sessionState.savedRecords
         },
         assistantMessage: {
-          content: '已取消「' + workflow.title + '」流程。如需稍後重開，我可隨時再建立新草稿。',
+          content: '已取消「' + workflow.title + '」流程。如需稍後重開，我可隨時再為您整理一次。',
           suggestions: GLOBAL_QUICK_PROMPTS
         }
       };
@@ -530,7 +516,7 @@
         savedRecords: [savedRecord].concat(sessionState.savedRecords).slice(0, 20)
       },
       assistantMessage: {
-        content: workflow.completionLead + '\n\n摘要：\n' + summary + '\n\n草稿編號：' + recordId + '\n已保存至 ' + (storage.path || storage.label) + '。',
+        content: workflow.completionLead + '\n\n摘要：\n' + summary + '\n\n如需調整細節，我可以即時為您更新。',
         suggestions: workflow.suggestions,
         workflow: buildWorkflowPreview(activeWorkflow.workflowId, workflow.steps.length - 1, nextValues, storage, 'completed', recordId)
       }
@@ -548,7 +534,7 @@
       },
       assistantMessage: {
         content:
-          snapshot.symbol + ' ' + snapshot.name + ' 的最新公開市場價格為 ' + snapshot.currency + ' ' + snapshot.price.toFixed(2) + '，日內變動 ' + changePrefix + snapshot.changePercent.toFixed(1) + '%。\n\n如果您現在查看股票價格，我建議不要只停留在查價；可以同時評估企業閒置資金是否適合做投資配置，以及是否需要處理相關換匯風險。\n\n這類公開市場資料不會額外另存，只會保留在本地對話紀錄。',
+          snapshot.symbol + ' ' + snapshot.name + ' 的最新公開市場價格為 ' + snapshot.currency + ' ' + snapshot.price.toFixed(2) + '，日內變動 ' + changePrefix + snapshot.changePercent.toFixed(1) + '%。\n\n如果您現在查看股票價格，我建議不要只停留在查價；可以同時評估企業閒置資金是否適合做投資配置，以及是否需要處理相關換匯風險。',
         type: 'action',
         actionData: {
           type: 'INVESTMENT_PLANNING',
@@ -689,7 +675,7 @@
     var title = document.createElement('h4');
     var badge = createElement('span', 'standalone-workflow-badge');
 
-    kicker.textContent = workflow.status === 'completed' ? '本地草稿' : '進行中流程';
+    kicker.textContent = workflow.status === 'completed' ? '已完成摘要' : '進行中流程';
     title.textContent = workflow.title;
     badge.textContent = workflow.progressLabel;
 
@@ -721,24 +707,6 @@
       });
 
       card.appendChild(list);
-    }
-
-    if (workflow.recordId || workflow.storageLabel) {
-      var footer = createElement('div', 'standalone-workflow-footer');
-
-      if (workflow.recordId) {
-        var record = document.createElement('p');
-        record.textContent = '草稿編號：' + workflow.recordId;
-        footer.appendChild(record);
-      }
-
-      if (workflow.storageLabel) {
-        var location = document.createElement('p');
-        location.textContent = '保存位置：' + workflow.storageLabel;
-        footer.appendChild(location);
-      }
-
-      card.appendChild(footer);
     }
 
     return card;
@@ -810,11 +778,7 @@
   }
 
   function syncMeta() {
-    storagePill.textContent = state.storage.kind === 'local-file' ? '本地檔案模式' : '本地瀏覽器模式';
-    draftsPill.textContent = '已保存 ' + state.sessionState.savedRecords.length + ' 份草稿';
-    footnote.textContent = state.storage.kind === 'local-file'
-      ? '所有非公開流程草稿會先保存至 ' + (state.storage.path || state.storage.label) + '。'
-      : '目前使用瀏覽器本地儲存模式；如透過 Vite 啟動，系統會改為保存到工作區檔案。';
+    return;
   }
 
   function syncComposerState() {
