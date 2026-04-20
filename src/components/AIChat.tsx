@@ -1,95 +1,167 @@
-import React, { useState, useRef, useEffect } from "react";
-import { Send, Bot, User, Loader2, ChevronRight, Wallet, UserPlus } from "lucide-react";
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Card } from "../../components/ui/card";
-import { Badge } from "../../components/ui/badge";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  ArrowRightLeft,
+  BadgeDollarSign,
+  Bot,
+  Building2,
+  ChevronRight,
+  Landmark,
+  Loader2,
+  Send,
+  TrendingUp,
+  User,
+  UserPlus,
+  Wallet,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { Badge } from "../../components/ui/badge";
+import { Button } from "../../components/ui/button";
+import { Card } from "../../components/ui/card";
+import { Input } from "../../components/ui/input";
+import {
+  createAssistantMessage,
+  createEmptySessionState,
+  createUserMessage,
+  createWelcomeMessage,
+  runAgentTurn,
+  type LocalChatMessage,
+  type StorageDetails,
+  type WorkflowPreview,
+} from "../../lib/agentEngine";
+import { actionCardConfig, type SuggestionOption } from "../../lib/knowledgeBase";
+import { loadPersistedAgentState, savePersistedAgentState } from "../../lib/localState";
 import { cn } from "../../lib/utils";
-import { knowledgeBase as mockKnowledgeBase } from "../../lib/knowledgeBase";
 
-export interface LocalChatMessage {
-  role: 'user' | 'model';
-  content: string;
-  type?: 'text' | 'action';
-  actionData?: any;
-}
+const DEFAULT_STORAGE: StorageDetails = {
+  kind: "local-file",
+  label: "目前工作區檔案",
+  path: "local-data/agent-state.json",
+};
+
+const actionIconMap = {
+  userPlus: UserPlus,
+  wallet: Wallet,
+  building: Building2,
+  exchange: ArrowRightLeft,
+  funding: BadgeDollarSign,
+  landmark: Landmark,
+  growth: TrendingUp,
+} as const;
+
+type ActionCardDetails = (typeof actionCardConfig)[keyof typeof actionCardConfig];
 
 export function AIChat() {
-  const [messages, setMessages] = useState<LocalChatMessage[]>([
-    { 
-      role: 'model', 
-      content: "您好！我是您的匯豐中小企 AI 助手。今天有什麼可以幫到您的業務發展？我可以協助您辦理開戶、跨境轉賬或查詢業務融資方案。" 
-    }
-  ]);
+  const [messages, setMessages] = useState<LocalChatMessage[]>([]);
+  const [sessionState, setSessionState] = useState(createEmptySessionState());
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isHydrated, setIsHydrated] = useState(false);
+  const [storageDetails, setStorageDetails] = useState<StorageDetails>(DEFAULT_STORAGE);
+
   const scrollRef = useRef<HTMLDivElement>(null);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
+  const messagesRef = useRef<LocalChatMessage[]>([]);
+  const sessionStateRef = useRef(sessionState);
+  const storageRef = useRef(storageDetails);
 
   useEffect(() => {
-    scrollToBottom();
+    messagesRef.current = messages;
+  }, [messages]);
+
+  useEffect(() => {
+    sessionStateRef.current = sessionState;
+  }, [sessionState]);
+
+  useEffect(() => {
+    storageRef.current = storageDetails;
+  }, [storageDetails]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
 
-  const handleSend = async () => {
-    if (!input.trim() || isLoading) return;
+  useEffect(() => {
+    let isCancelled = false;
 
-    const userMessage: LocalChatMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMessage]);
+    async function hydrateState() {
+      const { state, storage } = await loadPersistedAgentState();
+
+      if (isCancelled) {
+        return;
+      }
+
+      setStorageDetails(storage);
+      setSessionState(state.sessionState);
+      setMessages(state.messages.length > 0 ? state.messages : [createWelcomeMessage(storage)]);
+      setIsHydrated(true);
+    }
+
+    hydrateState();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
+
+  const submitPrompt = async (prompt?: string) => {
+    const nextInput = (prompt ?? input).trim();
+
+    if (!nextInput || isLoading || !isHydrated) {
+      return;
+    }
+
+    const userMessage = createUserMessage(nextInput);
+    const nextMessages = [...messagesRef.current, userMessage];
+
+    setMessages(nextMessages);
     setInput("");
     setIsLoading(true);
 
-    // Simulate thinking delay for "Agentic" feel
-    setTimeout(() => {
-      let botResponse = "感謝您的查詢。目前我正在處理您的請求。雖然我是一個 AI 助手，但我可以引導您到正確的銀行服務。請問您是想查詢特定交易還是新的銀行服務？";
-      let actionType: 'text' | 'action' = 'text';
-      let actionData = null;
+    window.setTimeout(async () => {
+      const result = runAgentTurn(nextInput, sessionStateRef.current, storageRef.current);
+      const assistantMessage = createAssistantMessage(result.assistantMessage);
+      const updatedMessages = [...nextMessages, assistantMessage];
 
-      const lowerInput = input.toLowerCase();
-      const match = mockKnowledgeBase.find(item => 
-        item.keywords.some(kw => lowerInput.includes(kw))
-      );
+      setMessages(updatedMessages);
+      setSessionState(result.sessionState);
 
-      if (match) {
-        botResponse = match.response;
-        if (match.action) {
-          actionType = 'action';
-          actionData = { type: match.action };
-        }
-      }
+      const updatedStorage = await savePersistedAgentState({
+        version: 1,
+        messages: updatedMessages,
+        sessionState: result.sessionState,
+        updatedAt: new Date().toISOString(),
+      });
 
-      setMessages(prev => [...prev, { 
-        role: 'model', 
-        content: botResponse,
-        type: actionType,
-        actionData
-      }]);
+      setStorageDetails(updatedStorage);
       setIsLoading(false);
-    }, 1000);
+    }, 850);
   };
 
   return (
     <div className="flex flex-col h-full max-w-4xl mx-auto p-4 md:p-6 gap-4 overflow-hidden">
-      <div className="flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-hsbc-red flex items-center justify-center text-white">
-                <Bot className="w-6 h-6" />
+      <div className="flex items-center justify-between shrink-0 gap-4">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-10 h-10 rounded-full bg-hsbc-red flex items-center justify-center text-white shrink-0">
+            <Bot className="w-6 h-6" />
+          </div>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold text-hsbc-black">匯豐中小企 AI 助手</h1>
+            <div className="flex flex-wrap items-center gap-2 text-xs">
+              <div className="flex items-center gap-2 text-green-600">
+                <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                隨時準備為您的業務提供支援
+              </div>
+              <Badge variant="outline" className="bg-white border-gray-200 text-gray-600 font-normal">
+                {storageDetails.kind === "local-file" ? "本地檔案模式" : "本地瀏覽器模式"}
+              </Badge>
+              <Badge variant="outline" className="bg-white border-gray-200 text-gray-600 font-normal">
+                已保存 {sessionState.savedRecords.length} 份草稿
+              </Badge>
             </div>
-            <div>
-                <h1 className="text-xl font-bold text-hsbc-black">匯豐中小企 AI 助手</h1>
-                <div className="flex items-center gap-2 text-xs text-green-600">
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                    隨時準備為您的業務提供支援
-                </div>
-            </div>
+          </div>
         </div>
-        <Badge variant="outline" className="bg-white border-gray-200 text-gray-500 font-normal">
-            Beta - 智能虛擬助手
+        <Badge variant="outline" className="bg-white border-gray-200 text-gray-500 font-normal shrink-0">
+          Beta - 智能虛擬助手
         </Badge>
       </div>
 
@@ -97,56 +169,72 @@ export function AIChat() {
         <div className="flex-1 overflow-y-auto scroll-smooth p-4 md:p-6" ref={scrollRef}>
           <div className="space-y-6">
             <AnimatePresence initial={false}>
-              {messages.map((message, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={cn(
-                    "flex gap-4 max-w-[85%]",
-                    message.role === 'user' ? "ml-auto flex-row-reverse" : "mr-auto"
-                  )}
-                >
-                  <div className={cn(
-                    "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm",
-                    message.role === 'user' ? "bg-black text-white" : "bg-hsbc-red text-white"
-                  )}>
-                    {message.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <div className={cn(
-                      "p-4 rounded-2xl text-sm leading-relaxed",
-                      message.role === 'user' 
-                        ? "bg-black text-white rounded-tr-none" 
-                        : "bg-white border border-gray-100 shadow-sm rounded-tl-none text-gray-800"
-                    )}>
-                      {message.content}
+              {messages.map((message) => {
+                const actionConfig = message.actionData?.type
+                  ? actionCardConfig[message.actionData.type]
+                  : null;
+
+                return (
+                  <motion.div
+                    key={message.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className={cn(
+                      "flex gap-4 max-w-[88%]",
+                      message.role === "user" ? "ml-auto flex-row-reverse" : "mr-auto",
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-sm",
+                        message.role === "user"
+                          ? "bg-black text-white"
+                          : "bg-hsbc-red text-white",
+                      )}
+                    >
+                      {message.role === "user" ? (
+                        <User className="w-4 h-4" />
+                      ) : (
+                        <Bot className="w-4 h-4" />
+                      )}
                     </div>
 
-                    {message.type === 'action' && message.actionData?.type === 'ACCOUNT_OPENING' && (
-                      <ActionCard 
-                        title="匯豐商業戶口申請"
-                        description="開始您的數碼銀行之旅。預計申請時間：5 分鐘。"
-                        icon={<UserPlus className="w-5 h-5 text-hsbc-red" />}
-                        bgColor="bg-red-50/50"
-                        actionLabel="繼續申請項目"
-                      />
-                    )}
+                    <div className="space-y-3 min-w-0">
+                      <div
+                        className={cn(
+                          "p-4 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap",
+                          message.role === "user"
+                            ? "bg-black text-white rounded-tr-none"
+                            : "bg-white border border-gray-100 shadow-sm rounded-tl-none text-gray-800",
+                        )}
+                      >
+                        {message.content}
+                      </div>
 
-                    {message.type === 'action' && message.actionData?.type === 'TRANSFER' && (
-                      <ActionCard 
-                        title="智能轉賬設定"
-                        description="使用匯豐「轉數快」或電匯進行即時結算。"
-                        icon={<Wallet className="w-5 h-5 text-hsbc-red" />}
-                        bgColor="bg-blue-50/50"
-                        actionLabel="初始化轉賬"
-                      />
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+                      {message.type === "action" && actionConfig && (
+                        <ActionCard
+                          config={actionConfig}
+                          prompt={message.actionData?.prompt ?? actionConfig.prompt}
+                          onTrigger={submitPrompt}
+                          disabled={isLoading}
+                        />
+                      )}
+
+                      {message.workflow && <WorkflowCard workflow={message.workflow} />}
+
+                      {message.role === "model" && message.suggestions && message.suggestions.length > 0 && (
+                        <SuggestionChips
+                          suggestions={message.suggestions}
+                          onTrigger={submitPrompt}
+                          disabled={isLoading}
+                        />
+                      )}
+                    </div>
+                  </motion.div>
+                );
+              })}
             </AnimatePresence>
+
             {isLoading && (
               <div className="flex gap-4 animate-in fade-in slide-in-from-bottom-2">
                 <div className="w-8 h-8 rounded-full bg-hsbc-red flex items-center justify-center text-white">
@@ -166,20 +254,32 @@ export function AIChat() {
         </div>
 
         <div className="p-4 border-t bg-white shrink-0">
-          <form className="flex gap-2" onSubmit={(e) => { e.preventDefault(); handleSend(); }}>
+          <form
+            className="flex gap-2"
+            onSubmit={(event) => {
+              event.preventDefault();
+              submitPrompt();
+            }}
+          >
             <Input
-              placeholder="例如：我想開立新的商業戶口..."
+              placeholder="例如：我想設定薪資發放、規劃外匯對沖或查 AAPL 股價..."
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={(event) => setInput(event.target.value)}
               className="rounded-xl border-gray-200 focus-visible:ring-hsbc-red"
-              disabled={isLoading}
+              disabled={isLoading || !isHydrated}
             />
-            <Button size="icon" className="shrink-0 bg-hsbc-red hover:bg-[#b0000e] text-white rounded-xl shadow-md transition-all active:scale-95" disabled={isLoading}>
+            <Button
+              size="icon"
+              className="shrink-0 bg-hsbc-red hover:bg-[#b0000e] text-white rounded-xl shadow-md transition-all active:scale-95"
+              disabled={isLoading || !isHydrated}
+            >
               <Send className="w-4 h-4" />
             </Button>
           </form>
           <p className="text-[10px] text-center mt-3 text-gray-400">
-            由匯豐生成式 AI 技術驅動。所有銀行操作均受匯豐安全加密技術保護。
+            {storageDetails.kind === "local-file"
+              ? `所有非公開流程草稿會先保存至 ${storageDetails.path ?? storageDetails.label}。`
+              : "目前使用瀏覽器本地儲存模式；如透過 Vite 啟動，系統會改為保存到工作區檔案。"}
           </p>
         </div>
       </Card>
@@ -187,26 +287,120 @@ export function AIChat() {
   );
 }
 
-function ActionCard({ title, description, icon, bgColor, actionLabel }: { title: string, description: string, icon: React.ReactNode, bgColor: string, actionLabel: string }) {
+function ActionCard({
+  config,
+  prompt,
+  onTrigger,
+  disabled,
+}: {
+  config: ActionCardDetails;
+  prompt: string;
+  onTrigger: (prompt: string) => void;
+  disabled: boolean;
+}) {
+  const Icon = actionIconMap[config.icon as keyof typeof actionIconMap] ?? Landmark;
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      className={cn("p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-3", bgColor)}
+      className={cn("p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col gap-3", {
+        "bg-red-50/70": config.tone === "tone-red" || config.tone === "tone-rose",
+        "bg-blue-50/70": config.tone === "tone-blue",
+        "bg-amber-50/70": config.tone === "tone-amber",
+        "bg-slate-50/80": config.tone === "tone-slate",
+        "bg-emerald-50/70": config.tone === "tone-emerald",
+        "bg-violet-50/70": config.tone === "tone-purple",
+      })}
     >
       <div className="flex gap-3 items-start">
-        <div className="p-2 bg-white rounded-lg shadow-sm">
-          {icon}
+        <div className="p-2 bg-white rounded-lg shadow-sm text-hsbc-red">
+          <Icon className="w-5 h-5" />
         </div>
-        <div className="flex-1">
-          <h4 className="text-sm font-bold text-gray-900">{title}</h4>
-          <p className="text-xs text-gray-500 mt-1 leading-relaxed">{description}</p>
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-bold text-gray-900">{config.title}</h4>
+          <p className="text-xs text-gray-500 mt-1 leading-relaxed">{config.description}</p>
         </div>
       </div>
-      <Button variant="outline" size="sm" className="w-full bg-white hover:bg-gray-50 hover:text-hsbc-red border-gray-200 rounded-lg group">
-        {actionLabel}
+      <Button
+        variant="outline"
+        size="sm"
+        className="w-full bg-white hover:bg-gray-50 hover:text-hsbc-red border-gray-200 rounded-lg group"
+        onClick={() => onTrigger(prompt)}
+        disabled={disabled}
+      >
+        {config.actionLabel}
         <ChevronRight className="w-4 h-4 ml-auto group-hover:translate-x-1 transition-transform" />
       </Button>
     </motion.div>
+  );
+}
+
+function WorkflowCard({ workflow }: { workflow: WorkflowPreview }) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white shadow-sm p-4 space-y-3">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.16em] text-gray-400">
+            {workflow.status === "completed" ? "本地草稿" : "進行中流程"}
+          </p>
+          <h4 className="text-sm font-bold text-gray-900 mt-1">{workflow.title}</h4>
+        </div>
+        <Badge variant="outline" className="bg-gray-50 border-gray-200 text-gray-600 font-normal">
+          {workflow.progressLabel}
+        </Badge>
+      </div>
+
+      {workflow.currentQuestion && (
+        <p className="text-xs text-gray-500 leading-relaxed">{workflow.currentQuestion}</p>
+      )}
+
+      {workflow.collectedFields.length > 0 && (
+        <div className="space-y-2">
+          {workflow.collectedFields.map((field) => (
+            <div
+              key={`${workflow.title}-${field.label}`}
+              className="flex items-start justify-between gap-3 text-xs"
+            >
+              <span className="text-gray-500 shrink-0">{field.label}</span>
+              <span className="text-gray-800 text-right leading-relaxed">{field.value}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(workflow.recordId || workflow.storageLabel) && (
+        <div className="text-[11px] text-gray-400 border-t border-gray-100 pt-3 space-y-1">
+          {workflow.recordId && <p>草稿編號：{workflow.recordId}</p>}
+          {workflow.storageLabel && <p>保存位置：{workflow.storageLabel}</p>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SuggestionChips({
+  suggestions,
+  onTrigger,
+  disabled,
+}: {
+  suggestions: SuggestionOption[];
+  onTrigger: (prompt: string) => void;
+  disabled: boolean;
+}) {
+  return (
+    <div className="flex flex-wrap gap-2">
+      {suggestions.map((suggestion) => (
+        <button
+          key={`${suggestion.label}-${suggestion.prompt}`}
+          type="button"
+          className="px-3 py-1.5 rounded-full border border-gray-200 bg-white text-xs text-gray-700 hover:border-hsbc-red hover:text-hsbc-red transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          onClick={() => onTrigger(suggestion.prompt)}
+          disabled={disabled}
+        >
+          {suggestion.label}
+        </button>
+      ))}
+    </div>
   );
 }

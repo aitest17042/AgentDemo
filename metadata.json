@@ -3,8 +3,8 @@
   "description": "An agentic AI portal for HSBC HK SME banking, assisting with account opening, transactions, and business services.",
   "requestFramePermissions": [],
   "majorCapabilities": [
-    "AI-powered banking assistance",
-    "Automated SME account opening workflow",
-    "Smart transaction management"
+    "AI-powered multi-step business banking workflows",
+    "Local-first draft persistence inside the workspace",
+    "Account opening, payments, payroll, financing, collections, FX, and investment planning"
   ]
 }
