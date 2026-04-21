@@ -266,10 +266,14 @@
   root.innerHTML =
     '<div class="standalone-app">' +
     '  <header class="standalone-header">' +
-    '    <div class="standalone-brand">' +
-    '      <div class="standalone-logo" aria-hidden="true"><div class="standalone-logo-mark"></div></div>' +
-    '      <span class="standalone-brand-label is-desktop">HSBC Business</span>' +
-    '      <span class="standalone-brand-label is-mobile">HSBC</span>' +
+    '    <div class="standalone-header-primary">' +
+    '      <div class="standalone-assistant-id">' +
+    '        <div class="standalone-assistant-avatar" aria-hidden="true">' + ICONS.bot + '</div>' +
+    '        <div class="standalone-title-block">' +
+    '          <h1>匯豐中小企 AI 助手</h1>' +
+    '          <div class="standalone-live-status"><span class="standalone-live-dot" aria-hidden="true"></span><span>隨時準備為您的業務提供支援</span></div>' +
+    '        </div>' +
+    '      </div>' +
     '    </div>' +
     '    <div class="standalone-header-actions">' +
     '      <div class="standalone-status-pill"><span class="standalone-status-pill-icon">' + ICONS.sparkles + '</span><span>AI 助手已啟動</span></div>' +
@@ -283,16 +287,6 @@
     '  </header>' +
     '  <main class="standalone-main">' +
     '    <div class="standalone-chat-shell">' +
-    '      <div class="standalone-chat-header">' +
-    '        <div class="standalone-assistant-id">' +
-    '          <div class="standalone-assistant-avatar" aria-hidden="true">' + ICONS.bot + '</div>' +
-    '          <div class="standalone-title-block">' +
-    '            <h1>匯豐中小企 AI 助手</h1>' +
-    '            <div class="standalone-live-status"><span class="standalone-live-dot" aria-hidden="true"></span><span>隨時準備為您的業務提供支援</span></div>' +
-    '          </div>' +
-    '        </div>' +
-    '        <div class="standalone-beta-badge">Beta - 智能虛擬助手</div>' +
-    '      </div>' +
     '      <section class="standalone-chat-card">' +
     '        <div class="standalone-messages" id="standalone-messages" aria-live="polite" aria-label="Chat messages"></div>' +
     '        <div class="standalone-composer">' +
