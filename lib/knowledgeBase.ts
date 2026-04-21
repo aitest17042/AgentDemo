@@ -204,9 +204,9 @@ export const clientBehaviorSignals: ClientBehaviorSignal[] = [
     actionType: "FX_HEDGE",
     suggestions: [
       { label: "開始外匯對沖", prompt: "我想規劃外匯對沖" },
-      { label: "安排跨境轉賬", prompt: "我想安排一筆跨境轉賬" },
+      { label: "兌換外幣", prompt: "我想兌換外幣" },
       { label: "查 USD-JPY 匯率", prompt: "USD-JPY 匯率" },
-    ],
+    ]
   },
 ];
 

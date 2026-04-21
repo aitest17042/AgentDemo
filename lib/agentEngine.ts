@@ -64,8 +64,20 @@ export interface ActiveWorkflowState {
   startedAt: string;
 }
 
+export interface PendingFxTransactionState {
+  baseCurrency: SupportedCurrencyCode;
+  quoteCurrency: SupportedCurrencyCode;
+  sourceAmount: number;
+  quoteAmount: number;
+  rate: number;
+  source: string;
+  quotedAt: string;
+  initiatedAt: string;
+}
+
 export interface AgentSessionState {
   activeWorkflow: ActiveWorkflowState | null;
+  pendingFxTransaction: PendingFxTransactionState | null;
   savedRecords: SavedWorkflowRecord[];
 }
 
@@ -80,13 +92,17 @@ export interface AgentMessagePayload {
   workflow?: WorkflowPreview;
 }
 
+export type AgentAssistantResponse = AgentMessagePayload | AgentMessagePayload[];
+
 export interface AgentTurnResult {
-  assistantMessage: AgentMessagePayload;
+  assistantMessage: AgentAssistantResponse;
   sessionState: AgentSessionState;
 }
 
 const STOCK_KEYWORDS = ["股價", "股票", "報價", "price", "stock", "ticker", "quote"];
 const FX_RATE_KEYWORDS = ["匯率", "exchange rate", "fx rate", "fx quote", "貨幣對", "外幣報價"];
+const FX_TRANSACTION_KEYWORDS = ["兌換外幣", "兑换外币", "換匯", "换汇", "fx transaction", "外幣交易"];
+const FX_CONFIRM_KEYWORDS = ["確認", "确认", "confirm", "ok", "yes"];
 const CANCEL_KEYWORDS = ["取消", "停止", "不要了", "cancel", "stop"];
 const RESTART_KEYWORDS = ["重新開始", "重來", "restart", "reset"];
 
@@ -111,6 +127,7 @@ export function createMessageId(prefix = "msg") {
 export function createEmptySessionState(): AgentSessionState {
   return {
     activeWorkflow: null,
+    pendingFxTransaction: null,
     savedRecords: [],
   };
 }
@@ -158,6 +175,12 @@ interface FxPairQuery {
   quoteCurrency: SupportedCurrencyCode;
 }
 
+interface FxTransactionRequest {
+  baseCurrency: SupportedCurrencyCode;
+  quoteCurrency: SupportedCurrencyCode;
+  sourceAmount: number;
+}
+
 const supportedCurrencyCodes = new Set<SupportedCurrencyCode>(
   currencyReferences.map((currency) => currency.code),
 );
@@ -194,14 +217,25 @@ function isRestartCommand(input: string) {
   return isKeywordMatch(input, RESTART_KEYWORDS);
 }
 
+function isFxConfirmationCommand(input: string) {
+  return isKeywordMatch(input, FX_CONFIRM_KEYWORDS);
+}
+
+function isGenericFxTransactionPrompt(input: string) {
+  return isKeywordMatch(input, FX_TRANSACTION_KEYWORDS);
+}
+
 function isSupportedCurrencyCode(code: string): code is SupportedCurrencyCode {
   return supportedCurrencyCodes.has(code as SupportedCurrencyCode);
 }
 
-function extractCurrencyCodes(input: string): SupportedCurrencyCode[] {
+function extractCurrencyMatches(input: string): Array<{
+  code: SupportedCurrencyCode;
+  index: number;
+}> {
   const normalizedInput = normalizeForMatch(input);
 
-  const matches = currencyReferences
+  return currencyReferences
     .map((currency) => {
       const hitIndexes = [currency.code, currency.name, ...currency.aliases]
         .map((alias) => normalizeForMatch(alias))
@@ -219,10 +253,12 @@ function extractCurrencyCodes(input: string): SupportedCurrencyCode[] {
     })
     .filter((item): item is { code: SupportedCurrencyCode; index: number } => item !== null)
     .sort((left, right) => left.index - right.index);
+}
 
+function extractCurrencyCodes(input: string): SupportedCurrencyCode[] {
   const uniqueCodes: SupportedCurrencyCode[] = [];
 
-  for (const match of matches) {
+  for (const match of extractCurrencyMatches(input)) {
     if (!uniqueCodes.includes(match.code)) {
       uniqueCodes.push(match.code);
     }
@@ -283,6 +319,55 @@ function isBareFxPairInput(input: string) {
   return /^[A-Za-z]{3}\s*[-/]\s*[A-Za-z]{3}$/.test(trimmedInput) || /^[A-Za-z]{6}$/.test(trimmedInput);
 }
 
+function extractFirstAmount(input: string) {
+  const amountMatch = String(input || "").match(/\d[\d,.]*(?:\.\d+)?/);
+
+  if (!amountMatch) {
+    return null;
+  }
+
+  const parsedAmount = Number(amountMatch[0].replace(/,/g, ""));
+
+  return Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : null;
+}
+
+function parseFxTransactionRequest(input: string): FxTransactionRequest | null {
+  const rawInput = String(input || "");
+
+  if (!/(兌換|兑换|轉|转|to|->|至|換成|换成)/i.test(rawInput)) {
+    return null;
+  }
+
+  const sourceAmount = extractFirstAmount(rawInput);
+  const currencyMatches = extractCurrencyMatches(rawInput);
+
+  if (!sourceAmount || currencyMatches.length < 2) {
+    return null;
+  }
+
+  const uniqueCodes: SupportedCurrencyCode[] = [];
+
+  for (const match of currencyMatches) {
+    if (!uniqueCodes.includes(match.code)) {
+      uniqueCodes.push(match.code);
+    }
+
+    if (uniqueCodes.length === 2) {
+      break;
+    }
+  }
+
+  if (uniqueCodes.length < 2 || uniqueCodes[0] === uniqueCodes[1]) {
+    return null;
+  }
+
+  return {
+    baseCurrency: uniqueCodes[0],
+    quoteCurrency: uniqueCodes[1],
+    sourceAmount,
+  };
+}
+
 function findFxRateSnapshot(baseCurrency: SupportedCurrencyCode, quoteCurrency: SupportedCurrencyCode) {
   const directSnapshot = publicFxRateSnapshots.find(
     (snapshot) =>
@@ -333,6 +418,21 @@ function formatFxRate(rate: number) {
   return rate.toFixed(6);
 }
 
+function formatTransactionAmount(amount: number, currency: SupportedCurrencyCode) {
+  const fractionDigits = currency === "JPY" ? 0 : amount % 1 === 0 ? 0 : 2;
+
+  return new Intl.NumberFormat("en-US", {
+    minimumFractionDigits: fractionDigits,
+    maximumFractionDigits: currency === "JPY" ? 0 : 2,
+  }).format(amount);
+}
+
+function createFxTransactionReference() {
+  const timestamp = new Date().toISOString().replace(/[-:TZ.]/g, "").slice(0, 14);
+
+  return `FXT-${timestamp}`;
+}
+
 function buildFxSuggestions(
   pair: FxPairQuery,
   signal: ClientBehaviorSignal | null,
@@ -343,7 +443,7 @@ function buildFxSuggestions(
 
   return [
     { label: "規劃外匯對沖", prompt: "我想規劃外匯對沖" },
-    { label: "安排跨境轉賬", prompt: "我想安排一筆跨境轉賬" },
+    { label: "兌換外幣", prompt: "我想兌換外幣" },
     {
       label: `查 ${pair.quoteCurrency}-${pair.baseCurrency} 匯率`,
       prompt: `${pair.quoteCurrency}-${pair.baseCurrency} 匯率`,
@@ -435,6 +535,7 @@ function startWorkflow(
   const workflow = workflowDefinitions[workflowId];
   const nextState: AgentSessionState = {
     ...sessionState,
+    pendingFxTransaction: null,
     activeWorkflow: {
       workflowId,
       stepIndex: 0,
@@ -547,6 +648,7 @@ function continueWorkflow(
   return {
     sessionState: {
       activeWorkflow: null,
+      pendingFxTransaction: null,
       savedRecords: [savedRecord, ...sessionState.savedRecords].slice(0, 20),
     },
     assistantMessage: {
@@ -580,6 +682,7 @@ function respondToStockLookup(
     sessionState: {
       ...sessionState,
       activeWorkflow: null,
+      pendingFxTransaction: null,
     },
     assistantMessage: {
       content:
@@ -626,45 +729,272 @@ function respondToFxLookup(
   const directRate = matchedSnapshot.resolvedRate;
   const inverseRate = 1 / directRate;
 
-  return {
-    sessionState: {
-      ...sessionState,
-      activeWorkflow: null,
+  // Always separate FX rate answer and client behavior signal into two messages if signal exists
+  const fxRateMessage: AgentMessagePayload = {
+    content:
+      `截至 ${matchedSnapshot.snapshot.updatedAt}，${pair.baseCurrency}/${pair.quoteCurrency} 的公開參考匯率約為 ${formatFxRate(directRate)}。` +
+      `\n\n換算參考：1 ${pair.baseCurrency} 約等於 ${formatFxRate(directRate)} ${pair.quoteCurrency}；1 ${pair.quoteCurrency} 約等於 ${formatFxRate(inverseRate)} ${pair.baseCurrency}。`,
+    type: "text",
+    workflow: {
+      title: "公開匯率參考",
+      status: "completed",
+      progressLabel: "公開資料",
+      collectedFields: [
+        { label: "貨幣對", value: `${pair.baseCurrency}/${pair.quoteCurrency}` },
+        {
+          label: "參考匯率",
+          value: `1 ${pair.baseCurrency} 約等於 ${formatFxRate(directRate)} ${pair.quoteCurrency}`,
+        },
+        { label: "更新時間", value: matchedSnapshot.snapshot.updatedAt },
+        { label: "資料來源", value: matchedSnapshot.snapshot.source },
+      ],
     },
-    assistantMessage: {
-      content:
-        `截至 ${matchedSnapshot.snapshot.updatedAt}，${pair.baseCurrency}/${pair.quoteCurrency} 的公開參考匯率約為 ${formatFxRate(directRate)}。` +
-        `\n\n換算參考：1 ${pair.baseCurrency} 約等於 ${formatFxRate(directRate)} ${pair.quoteCurrency}；1 ${pair.quoteCurrency} 約等於 ${formatFxRate(inverseRate)} ${pair.baseCurrency}。` +
-        (signal ? `\n\n${signal.message}` : ""),
-      type: signal?.actionType ? "action" : "text",
-      actionData: signal?.actionType
+  };
+
+  // If there is a client behavior signal, show it as a separate message
+  if (signal) {
+    const signalMessage: AgentMessagePayload = {
+      content: signal.message,
+      type: "action",
+      actionData: signal.actionType
         ? {
             type: signal.actionType,
             prompt: actionCardConfig[signal.actionType].prompt,
           }
         : undefined,
       suggestions: buildFxSuggestions(pair, signal),
+    };
+    return {
+      sessionState: {
+        ...sessionState,
+        activeWorkflow: null,
+        pendingFxTransaction: null,
+      },
+      assistantMessage: [fxRateMessage, signalMessage],
+    };
+  }
+
+  // Otherwise, just return the FX rate message
+  return {
+    sessionState: {
+      ...sessionState,
+      activeWorkflow: null,
+      pendingFxTransaction: null,
+    },
+    assistantMessage: fxRateMessage,
+  };
+}
+
+function respondToGenericFxTransactionPrompt(sessionState: AgentSessionState): AgentTurnResult {
+  return {
+    sessionState: {
+      ...sessionState,
+      activeWorkflow: null,
+      pendingFxTransaction: null,
+    },
+    assistantMessage: {
+      content:
+        "請直接輸入兌換指示，例如 10000 USD 轉 JPY。我會按現時公開參考匯率直接整理交易確認，再讓您回覆確認。",
+      suggestions: [
+        { label: "輸入 10000 USD 轉 JPY", prompt: "10000 USD 轉 JPY" },
+        { label: "輸入 50000 HKD 轉 USD", prompt: "50000 HKD 轉 USD" },
+        { label: "查 USD-JPY 匯率", prompt: "USD-JPY 匯率" },
+      ],
+    },
+  };
+}
+
+function respondToFxTransactionQuote(
+  request: FxTransactionRequest,
+  sessionState: AgentSessionState,
+): AgentTurnResult {
+  const matchedSnapshot = findFxRateSnapshot(request.baseCurrency, request.quoteCurrency);
+
+  if (!matchedSnapshot) {
+    return respondToGenericFxTransactionPrompt(sessionState);
+  }
+
+  const quoteAmount = request.sourceAmount * matchedSnapshot.resolvedRate;
+  const pendingFxTransaction: PendingFxTransactionState = {
+    baseCurrency: request.baseCurrency,
+    quoteCurrency: request.quoteCurrency,
+    sourceAmount: request.sourceAmount,
+    quoteAmount,
+    rate: matchedSnapshot.resolvedRate,
+    source: matchedSnapshot.snapshot.source,
+    quotedAt: matchedSnapshot.snapshot.updatedAt,
+    initiatedAt: new Date().toISOString(),
+  };
+
+  return {
+    sessionState: {
+      ...sessionState,
+      activeWorkflow: null,
+      pendingFxTransaction,
+    },
+    assistantMessage: {
+      content:
+        `你是否想兌換 ${formatTransactionAmount(request.sourceAmount, request.baseCurrency)} ${request.baseCurrency} 至 ${request.quoteCurrency}？` +
+        `\n\n根據現時匯率 ${formatFxRate(matchedSnapshot.resolvedRate)}，` +
+        `${formatTransactionAmount(request.sourceAmount, request.baseCurrency)} ${request.baseCurrency} 約相等於 ` +
+        `${formatTransactionAmount(quoteAmount, request.quoteCurrency)} ${request.quoteCurrency}。` +
+        `\n\n報價時間：${matchedSnapshot.snapshot.updatedAt}` +
+        `\n資料來源：${matchedSnapshot.snapshot.source}` +
+        `\n\n如確認交易，請直接回覆「確認」。`,
+      suggestions: [
+        { label: "確認交易", prompt: "確認" },
+        { label: "取消交易", prompt: "取消" },
+      ],
       workflow: {
-        title: "公開匯率參考",
+        title: "外幣兌換確認",
         status: "completed",
-        progressLabel: "公開資料",
+        progressLabel: "待確認",
         collectedFields: [
-          { label: "貨幣對", value: `${pair.baseCurrency}/${pair.quoteCurrency}` },
+          {
+            label: "賣出幣種",
+            value: `${formatTransactionAmount(request.sourceAmount, request.baseCurrency)} ${request.baseCurrency}`,
+          },
+          {
+            label: "買入幣種",
+            value: `${formatTransactionAmount(quoteAmount, request.quoteCurrency)} ${request.quoteCurrency}`,
+          },
           {
             label: "參考匯率",
-            value: `1 ${pair.baseCurrency} 約等於 ${formatFxRate(directRate)} ${pair.quoteCurrency}`,
+            value: `1 ${request.baseCurrency} 約等於 ${formatFxRate(matchedSnapshot.resolvedRate)} ${request.quoteCurrency}`,
           },
-          { label: "更新時間", value: matchedSnapshot.snapshot.updatedAt },
-          { label: "資料來源", value: matchedSnapshot.snapshot.source },
         ],
       },
     },
   };
 }
 
+function continuePendingFxTransaction(
+  input: string,
+  sessionState: AgentSessionState,
+): AgentTurnResult {
+  const pendingFxTransaction = sessionState.pendingFxTransaction;
+
+  if (!pendingFxTransaction) {
+    return {
+      sessionState,
+      assistantMessage: {
+        content: "目前沒有待確認的外幣交易。您可直接輸入例如 10000 USD 轉 JPY。",
+        suggestions: [
+          { label: "輸入 10000 USD 轉 JPY", prompt: "10000 USD 轉 JPY" },
+          { label: "查 USD-JPY 匯率", prompt: "USD-JPY 匯率" },
+        ],
+      },
+    };
+  }
+
+  const replacementRequest = parseFxTransactionRequest(input);
+
+  if (replacementRequest) {
+    return respondToFxTransactionQuote(replacementRequest, {
+      ...sessionState,
+      pendingFxTransaction: null,
+    });
+  }
+
+  if (isCancelCommand(input)) {
+    return {
+      sessionState: {
+        ...sessionState,
+        pendingFxTransaction: null,
+      },
+      assistantMessage: {
+        content: "已取消本次外幣兌換指示。如需重新報價，請直接輸入新的兌換內容，例如 10000 USD 轉 JPY。",
+        suggestions: [
+          { label: "重新輸入兌換指示", prompt: "10000 USD 轉 JPY" },
+          { label: "查 USD-JPY 匯率", prompt: "USD-JPY 匯率" },
+        ],
+      },
+    };
+  }
+
+  if (!isFxConfirmationCommand(input)) {
+    return {
+      sessionState,
+      assistantMessage: {
+        content:
+          `目前待確認交易為 ${formatTransactionAmount(pendingFxTransaction.sourceAmount, pendingFxTransaction.baseCurrency)} ${pendingFxTransaction.baseCurrency} ` +
+          `兌換至 ${pendingFxTransaction.quoteCurrency}。如確認請回覆「確認」，如需更改可直接輸入新的兌換內容。`,
+        suggestions: [
+          { label: "確認交易", prompt: "確認" },
+          { label: "取消交易", prompt: "取消" },
+        ],
+      },
+    };
+  }
+
+  const transactionReference = createFxTransactionReference();
+  const signal = findClientBehaviorSignal(
+    pendingFxTransaction.baseCurrency,
+    pendingFxTransaction.quoteCurrency,
+  );
+  const resultMessage: AgentMessagePayload = {
+    content:
+      `兌換成功。\n\n交易編號：${transactionReference}` +
+      `\n賣出：${formatTransactionAmount(pendingFxTransaction.sourceAmount, pendingFxTransaction.baseCurrency)} ${pendingFxTransaction.baseCurrency}` +
+      `\n買入：${formatTransactionAmount(pendingFxTransaction.quoteAmount, pendingFxTransaction.quoteCurrency)} ${pendingFxTransaction.quoteCurrency}` +
+      `\n成交參考匯率：${formatFxRate(pendingFxTransaction.rate)}` +
+      `\n報價時間：${pendingFxTransaction.quotedAt}` +
+      `\n資料來源：${pendingFxTransaction.source}`,
+    workflow: {
+      title: "外幣兌換結果",
+      status: "completed",
+      progressLabel: "已完成",
+      collectedFields: [
+        { label: "交易編號", value: transactionReference },
+        {
+          label: "賣出幣種",
+          value: `${formatTransactionAmount(pendingFxTransaction.sourceAmount, pendingFxTransaction.baseCurrency)} ${pendingFxTransaction.baseCurrency}`,
+        },
+        {
+          label: "買入幣種",
+          value: `${formatTransactionAmount(pendingFxTransaction.quoteAmount, pendingFxTransaction.quoteCurrency)} ${pendingFxTransaction.quoteCurrency}`,
+        },
+      ],
+    },
+  };
+
+  const nextState: AgentSessionState = {
+    ...sessionState,
+    pendingFxTransaction: null,
+  };
+
+  if (!signal) {
+    return {
+      sessionState: nextState,
+      assistantMessage: resultMessage,
+    };
+  }
+
+  return {
+    sessionState: nextState,
+    assistantMessage: [
+      resultMessage,
+      {
+        content: signal.message,
+        type: "action",
+        actionData: signal.actionType
+          ? {
+              type: signal.actionType,
+              prompt: actionCardConfig[signal.actionType].prompt,
+            }
+          : undefined,
+        suggestions: signal.suggestions,
+      },
+    ],
+  };
+}
+
 function respondToGenericFxPrompt(sessionState: AgentSessionState): AgentTurnResult {
   return {
-    sessionState,
+    sessionState: {
+      ...sessionState,
+      pendingFxTransaction: null,
+    },
     assistantMessage: {
       content:
         "我可以先提供公開參考匯率。請輸入貨幣對，例如 JPY-USD、USD-JPY、USD-HKD 或 EUR-USD。",
@@ -679,7 +1009,10 @@ function respondToGenericFxPrompt(sessionState: AgentSessionState): AgentTurnRes
 
 function respondToGenericStockPrompt(sessionState: AgentSessionState): AgentTurnResult {
   return {
-    sessionState,
+    sessionState: {
+      ...sessionState,
+      pendingFxTransaction: null,
+    },
     assistantMessage: {
       content:
         "我可以先提供公開市場股價參考。請輸入股票代號或公司名稱，例如 700.HK、0005.HK、AAPL 或 Microsoft。",
@@ -735,8 +1068,22 @@ export function runAgentTurn(
   sessionState: AgentSessionState,
   storage: StorageDetails,
 ): AgentTurnResult {
+  if (sessionState.pendingFxTransaction) {
+    return continuePendingFxTransaction(input, sessionState);
+  }
+
   if (sessionState.activeWorkflow) {
     return continueWorkflow(input, sessionState, storage);
+  }
+
+  const parsedFxTransaction = parseFxTransactionRequest(input);
+
+  if (parsedFxTransaction) {
+    return respondToFxTransactionQuote(parsedFxTransaction, sessionState);
+  }
+
+  if (isGenericFxTransactionPrompt(input)) {
+    return respondToGenericFxTransactionPrompt(sessionState);
   }
 
   const matchedStock = findMarketSnapshot(input);

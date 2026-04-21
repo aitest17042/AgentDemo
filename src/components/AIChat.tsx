@@ -28,7 +28,6 @@ import {
   type StorageDetails,
 } from "../../lib/agentEngine";
 import { actionCardConfig, type SuggestionOption } from "../../lib/knowledgeBase";
-import { loadPersistedAgentState, savePersistedAgentState } from "../../lib/localState";
 import { cn } from "../../lib/utils";
 
 const DEFAULT_STORAGE: StorageDetails = {
@@ -80,26 +79,10 @@ export function AIChat() {
   }, [messages, isLoading]);
 
   useEffect(() => {
-    let isCancelled = false;
-
-    async function hydrateState() {
-      const { state, storage } = await loadPersistedAgentState();
-
-      if (isCancelled) {
-        return;
-      }
-
-      setStorageDetails(storage);
-      setSessionState(state.sessionState);
-      setMessages(state.messages.length > 0 ? state.messages : [createWelcomeMessage(storage)]);
-      setIsHydrated(true);
-    }
-
-    hydrateState();
-
-    return () => {
-      isCancelled = true;
-    };
+    setStorageDetails(DEFAULT_STORAGE);
+    setSessionState(createEmptySessionState());
+    setMessages([createWelcomeMessage(DEFAULT_STORAGE)]);
+    setIsHydrated(true);
   }, []);
 
   const submitPrompt = async (prompt?: string) => {
@@ -116,22 +99,19 @@ export function AIChat() {
     setInput("");
     setIsLoading(true);
 
-    window.setTimeout(async () => {
+    window.setTimeout(() => {
       const result = runAgentTurn(nextInput, sessionStateRef.current, storageRef.current);
-      const assistantMessage = createAssistantMessage(result.assistantMessage);
-      const updatedMessages = [...nextMessages, assistantMessage];
+      // Support multiple assistant messages (array) for multi-bubble output
+      let assistantMessages: LocalChatMessage[] = [];
+      if (Array.isArray(result.assistantMessage)) {
+        assistantMessages = result.assistantMessage.map((msg: any) => createAssistantMessage(msg));
+      } else {
+        assistantMessages = [createAssistantMessage(result.assistantMessage)];
+      }
+      const updatedMessages = [...nextMessages, ...assistantMessages];
 
       setMessages(updatedMessages);
       setSessionState(result.sessionState);
-
-      const updatedStorage = await savePersistedAgentState({
-        version: 1,
-        messages: updatedMessages,
-        sessionState: result.sessionState,
-        updatedAt: new Date().toISOString(),
-      });
-
-      setStorageDetails(updatedStorage);
       setIsLoading(false);
     }, 850);
   };
